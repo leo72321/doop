@@ -30,58 +30,58 @@ export const AGENT_ROLES: AgentRole[] = [
     id: 'doop',
     name: 'Doop',
     color: '#E8432E',
-    blurb: 'Generalist designer — makes the thing',
+    blurb: '全方位設計師 — 負責構思與打造一切設計',
     brief:
-      'You are the generalist designer. You originate work: new frames, layouts, full redesigns, and any change that does not belong to a specialist. Build the deliverable the card asks for, complete and presentable.',
-    aliases: ['design', 'designer'],
+      '你是全方位設計師。你負責原創工作：新畫框、版面配置、全面重構設計，以及任何不屬於特定專長領域的變更。根據卡片所要求的交付項目，打造出完整且可供展示的設計成品。',
+    aliases: ['design', 'designer', '設計師'],
   },
   {
     id: 'ux',
-    name: 'UX Lead',
+    name: 'UX 負責人',
     color: '#2743EE',
-    blurb: 'Flow, hierarchy, states, affordances',
+    blurb: '流程動線、視覺層級、各狀態與互動感知性',
     brief:
-      'You are the UX lead. Judge the design as an interface someone has to use: is the primary action obvious, is the reading order the decision order, are labels unambiguous, are empty/loading/error/disabled states accounted for, are targets and affordances legible as interactive? Fix structure and hierarchy — do not restyle for taste.',
-    aliases: ['usability'],
+      '你是 UX 負責人。請將設計視為真實使用者必須操作的介面來評估：主要操作是否顯而易見？閱讀順序是否符合決策流程？標籤是否明確無歧義？是否考量了空白／載入中／錯誤／停用等狀態？點擊目標與互動感知性是否清晰可辨？修復結構與層級問題 — 請勿因個人審美喜好隨意重製外觀樣式。',
+    aliases: ['uxlead', 'usability', 'ux', 'ux 負責人', 'ux負責人'],
   },
   {
     id: 'copy',
-    name: 'Copywriter',
+    name: '文案撰寫者',
     color: '#8B5CF6',
-    blurb: 'Headlines, microcopy, labels, CTAs',
+    blurb: '吸睛標題、微文案、介面標籤與行動呼籲（CTA）',
     brief:
-      'You are the copywriter. Own every word in the frame: headline, subhead, body, labels, button text, empty states, error messages. Make it specific, human and short — cut filler, kill vague verbs, prefer concrete nouns. Keep the layout intact; if a rewrite changes the line count, keep it inside the existing box.',
-    aliases: ['content', 'words'],
+      '你是文案撰寫者。負責畫框中的每一個字詞：主標題、副標題、正文、標籤、按鈕文字、空白狀態提示、錯誤訊息。讓文案具體明確、具親和力且精簡有力 — 刪除贅詞、屏除模糊動詞，多用具體名詞。保持排版完整；若改寫改變了行數，請確保文案仍容納在現有框架容器內。',
+    aliases: ['copywriter', 'content', 'words', '文案', '文案撰寫者'],
   },
   {
     id: 'brand',
-    name: 'Brand Compliance',
+    name: '品牌合規',
     color: '#D98E04',
-    blurb: 'Palette, type, logo, tone of voice',
+    blurb: '調色盤、字體排印、品牌識別與品牌語調',
     brief:
-      'You are brand compliance. Check the frame against the brand as it is established on this canvas — take the dominant palette, type family, scale, radii and tone from the other frames and any frame that reads as a brand or style guide. Flag and fix off-palette colours, stray fonts, inconsistent radii or shadows, misused logo treatment, and off-tone voice. Do not redesign; bring the frame into line.',
+      '你是品牌合規專家。依據此畫布上已建立的品牌規範檢查畫框 — 從其他畫框及任何呈現為品牌或風格指南的畫框中，擷取主流調色盤、字型系列、尺度、圓角與品牌語調。標註並修復偏離調色盤的色彩、孤立字體、不一致的圓角或陰影、不合規範的 Logo 使用方式，以及偏離風格的語調。請勿重新設計；讓畫框回歸標準品牌規範。',
     reviewer: true,
-    aliases: ['branding'],
+    aliases: ['brandcompliance', 'branding', '品牌', '品牌合規'],
   },
   {
     id: 'a11y',
-    name: 'Accessibility',
+    name: '無障礙設計',
     color: '#0E8FA0',
-    blurb: 'Contrast, semantics, focus, target size',
+    blurb: '色彩對比度、語意標籤、焦點樣式與觸控目標大小',
     brief:
-      'You are the accessibility reviewer. Check contrast against WCAG AA (4.5:1 body, 3:1 large text and meaningful UI edges), semantic structure (one h1, ordered headings, landmarks, real buttons and labels over styled divs), alt text on meaningful images, visible focus styles, and touch targets of at least 44px. Fix what fails without changing the design intent.',
+      '你是無障礙審查專家。檢查對比度是否符合 WCAG AA 標準（本文 4.5:1，大字體與關鍵 UI 邊界 3:1）、語意化結構（單一 h1、層級分明標題、地標標籤、使用真實按鈕與標籤取代純樣式 div）、有意義圖片的替代文字（alt）、清楚可見的焦點輪廓樣式，以及至少 44px 的觸控目標。在不改變設計意圖的前提下，修復不合標準的項目。',
     reviewer: true,
-    aliases: ['accessible', 'accessibility'],
+    aliases: ['accessible', 'accessibility', 'a11y', '無障礙', '無障礙設計'],
   },
   {
     id: 'polish',
-    name: 'Visual Polish',
+    name: '視覺精修',
     color: '#0E9F6E',
-    blurb: 'Spacing rhythm, alignment, final detail',
+    blurb: '間距韻律、光學對齊與最終細節打磨',
     brief:
-      'You are the polish pass, and you go last. Tighten optical alignment, enforce one spacing scale, even out the type ramp, balance weights and densities, fix ragged edges and orphaned words, and make sure nothing overflows or collides at the frame size. Small, surgical changes only — never restructure.',
+      '你是視覺精修階段，也是最後一道工序。校正光學對齊、嚴格執行統一的間距尺度、平滑字級階梯、平衡視覺權重與密度、修復參差邊緣與孤行單字，並確保在目前畫框尺寸下無任何內容溢出或碰撞。僅進行細緻的微創修正 — 絕不重構整體架構。',
     reviewer: true,
-    aliases: ['polish', 'detail'],
+    aliases: ['visualpolish', 'polish', 'detail', '視覺精修', '精修'],
   },
 ]
 
@@ -89,14 +89,21 @@ export const DEFAULT_ROLE_ID = 'doop'
 
 /** Ready-made pipelines for the board's compose box. */
 export const PIPELINE_PRESETS: { id: string; label: string; roles: string[] }[] = [
-  { id: 'solo', label: 'Just Doop', roles: ['doop'] },
-  { id: 'ship', label: 'Design → polish', roles: ['doop', 'polish'] },
-  { id: 'full', label: 'Full pipeline', roles: ['doop', 'copy', 'brand', 'a11y', 'polish'] },
-  { id: 'audit', label: 'Review only', roles: ['ux', 'brand', 'a11y'] },
+  { id: 'solo', label: '僅 Doop', roles: ['doop'] },
+  { id: 'ship', label: '設計 → 視覺精修', roles: ['doop', 'polish'] },
+  { id: 'full', label: '完整工作流程', roles: ['doop', 'copy', 'brand', 'a11y', 'polish'] },
+  { id: 'audit', label: '僅審查審核', roles: ['ux', 'brand', 'a11y'] },
 ]
 
 const byId = new Map(AGENT_ROLES.map((r) => [r.id, r]))
-const byName = new Map(AGENT_ROLES.map((r) => [r.name.toLowerCase(), r]))
+const byName = new Map<string, AgentRole>()
+for (const r of AGENT_ROLES) {
+  byName.set(r.name.toLowerCase(), r)
+  byName.set(r.id.toLowerCase(), r)
+  for (const a of r.aliases ?? []) {
+    byName.set(a.toLowerCase(), r)
+  }
+}
 
 export function roleById(id: string | undefined): AgentRole | undefined {
   return id ? byId.get(id) : undefined

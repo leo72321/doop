@@ -143,7 +143,7 @@ function AgentPicker({ onPick }: { onPick: (agent: AgentId) => void }) {
             onPick(agent)
           }}
         >
-          Connect
+          連線
         </Button>
       </ModalActions>
     </>
@@ -166,32 +166,32 @@ function agentSteps(
 ): { lede: string; steps: Step[] } {
   const jsonConfig = JSON.stringify({ mcpServers: { doop: { type: 'http', url: mcpUrl } } }, null, 2)
   const pointAt: Step = {
-    title: 'Point it at this canvas',
+    title: '指向此畫布',
     body: prompt
-      ? 'Paste this as your first message. Everything else the agent needs comes from the server.'
-      : 'Open a canvas and tell the agent to work on it. Everything else it needs comes from the server.',
+      ? '將此訊息作為第一則指令傳送給 Agent。其餘所需資訊將直接由伺服器提供。'
+      : '開啟畫布並告知 Agent 在該畫布上工作。其餘所需資訊將直接由伺服器提供。',
     code: prompt || undefined,
   }
   switch (agent) {
     case 'claude-code':
       return {
-        lede: 'Three steps, about a minute. Claude Code then designs on this canvas as you.',
+        lede: '只需 3 個步驟，大約 1 分鐘。Claude Code 隨後即可代表您在此畫布上進行設計。',
         steps: [
           {
-            title: 'Add Doop as an MCP server',
+            title: '將 Doop 新增為 MCP 伺服器',
             body: (
               <>
-                Run this once in any terminal. It registers the <code>doop</code> server for every project.
+                在任何終端機中執行一次此指令。這會為所有專案註冊 <code>doop</code> 伺服器。
               </>
             ),
             code: `claude mcp add --transport http doop "${mcpUrl}"`,
           },
           {
-            title: 'Sign in from Claude Code',
+            title: '從 Claude Code 登入驗證',
             body: (
               <>
-                Inside Claude Code type <code>/mcp</code>, pick <strong>doop</strong>, then{' '}
-                <strong>Authenticate</strong>. A browser tab opens so you can approve the connection.
+                在 Claude Code 中輸入 <code>/mcp</code>，選擇 <strong>doop</strong>，然後選擇{' '}
+                <strong>Authenticate</strong>。系統會開啟瀏覽器分頁供您核准連線。
               </>
             ),
           },
@@ -201,43 +201,43 @@ function agentSteps(
     case 'claude':
       if (claudeConnection === 'desktop') {
         return {
-          lede: 'Add Doop from the desktop app, confirm in Claude, and start designing together.',
+          lede: '從桌面端應用程式新增 Doop，在 Claude 中確認後即可開始共同設計。',
           steps: [
             {
-              title: 'Add Doop to Claude Desktop',
-              body: 'Click Add to Claude in the Doop desktop app, then confirm the installation in Claude. Your Doop server address is filled in for you.',
+              title: '新增 Doop 至 Claude Desktop',
+              body: '在 Doop 桌面端應用中點擊「新增至 Claude」，並在 Claude 中確認安裝。系統會自動填入您的 Doop 伺服器位址。',
               action: <ClaudeDesktopInstall mcpUrl={mcpUrl} />,
             },
             {
-              title: 'Connect your Doop account',
-              body: 'Enable the extension in Claude. Sign in to Doop in the browser that opens and approve the connection.',
+              title: '連線您的 Doop 帳號',
+              body: '在 Claude 中啟用擴充功能。在開啟的瀏覽器中登入 Doop 並核准連線。',
             },
             {
               ...pointAt,
               body: prompt
-                ? 'Start a new Claude chat, enable Doop in the tools menu, and send this as your first message.'
-                : 'Start a new Claude chat, enable Doop in the tools menu, and tell it which canvas to work on.',
+                ? '開啟新的 Claude 對話，在工具選單中啟用 Doop，並將此作為第一則訊息傳送。'
+                : '開啟新的 Claude 對話，在工具選單中啟用 Doop，並指定要在哪個畫布上工作。',
             },
           ],
         }
       }
       if (!claudeConnectorInstallUrl(mcpUrl)) {
         return {
-          lede: 'Claude’s online connector needs a publicly reachable HTTPS server.',
+          lede: 'Claude 的線上連接器需要公開可連線的 HTTPS 伺服器位址。',
           steps: [
             {
-              title: 'Use the desktop connection for this server',
-              body: 'This Doop address is local or uses HTTP. Choose Desktop app above to connect from your computer, or open Doop at its public HTTPS address.',
+              title: '在此伺服器使用桌面端連線',
+              body: '此 Doop 位址為本機位址或使用 HTTP。請在上方選擇「桌面端應用」從電腦連線，或在公開 HTTPS 位址上開啟 Doop。',
             },
           ],
         }
       }
       return {
-        lede: 'Add Doop to your Claude account, approve the connection, and start designing. No download needed.',
+        lede: '將 Doop 加入您的 Claude 帳號，核准連線後即可開始設計。無需下載任何檔案。',
         steps: [
           {
-            title: 'Add Doop to Claude',
-            body: 'Open Claude with Doop’s name and server address already filled in. Review the details and add the connector.',
+            title: '將 Doop 新增至 Claude',
+            body: '開啟 Claude，Doop 的名稱與伺服器位址已為您預先填妥。檢視詳細資訊並新增連接器。',
             action: (
               <Button asChild variant="solid" className="mt-2.5">
                 <a
@@ -246,36 +246,36 @@ function agentSteps(
                   rel="noopener noreferrer"
                   onClick={() => posthog.capture('claude_connector_opened')}
                 >
-                  Add to Claude
+                  新增至 Claude
                 </a>
               </Button>
             ),
           },
           {
-            title: 'Approve the sign-in',
-            body: 'Click Connect on the new connector. A browser tab opens so you can approve the connection.',
+            title: '核准登入連線',
+            body: '在新增的連接器上點擊連線。系統會開啟瀏覽器分頁供您核准授權。',
           },
           {
             ...pointAt,
             body: prompt
-              ? 'In a new chat enable Doop under the tools menu and send this as your first message.'
-              : 'In a new chat enable Doop under the tools menu and tell it which canvas to work on.',
+              ? '在新的對話中於工具選單下方啟用 Doop，並將此作為第一則訊息傳送。'
+              : '在新的對話中於工具選單下方啟用 Doop，並指定要在哪個畫布上工作。',
           },
         ],
       }
     case 'chatgpt':
       if (!canUseChatGPTPublicEndpoint(mcpUrl)) {
         return {
-          lede: 'ChatGPT needs a public HTTPS address or a secure tunnel to reach this Doop server.',
+          lede: 'ChatGPT 需要公開 HTTPS 位址或安全通道才能連線至此 Doop 伺服器。',
           steps: [
             {
-              title: 'Make your Doop server reachable',
-              body: 'ChatGPT cannot reach this address directly. Open your public HTTPS Doop address and start this connection there, or configure an OpenAI Secure MCP Tunnel for this server.',
+              title: '使您的 Doop 伺服器可對外連線',
+              body: 'ChatGPT 無法直接連線至此位址。請開啟您的公開 HTTPS Doop 位址並在此處發起連線，或為此伺服器設定 OpenAI Secure MCP Tunnel。',
               code: mcpUrl,
               action: (
                 <Button asChild variant="solid" className="mt-2.5">
                   <a href={CHATGPT_CONNECTION_GUIDE} target="_blank" rel="noopener noreferrer">
-                    View ChatGPT setup guide
+                    檢視 ChatGPT 設定指南
                   </a>
                 </Button>
               ),
@@ -284,14 +284,14 @@ function agentSteps(
         }
       }
       return {
-        lede: 'No download. Open ChatGPT, paste the server address below, and approve the Doop connection.',
+        lede: '無需下載。開啟 ChatGPT，貼上下方的伺服器位址，並核准 Doop 連線。',
         steps: [
           {
-            title: 'Open ChatGPT plugins',
+            title: '開啟 ChatGPT 外掛程式（Plugins）',
             body: (
               <>
-                Click the <strong>+</strong> button on the Plugins page, then <strong>Add custom MCP server</strong>.
-                Your account or workspace must allow custom servers.
+                點擊外掛程式頁面上的 <strong>+</strong> 按鈕，然後選擇 <strong>新增自訂 MCP 伺服器</strong>。
+                您的帳號或工作區必須允許自訂伺服器。
               </>
             ),
             action: (
@@ -302,18 +302,18 @@ function agentSteps(
                   rel="noopener noreferrer"
                   onClick={() => posthog.capture('chatgpt_connection_opened')}
                 >
-                  Open ChatGPT setup
+                  開啟 ChatGPT 設定
                 </a>
               </Button>
             ),
           },
           {
-            title: 'Add Doop and sign in',
+            title: '新增 Doop 並登入',
             body: (
               <>
-                Name it <strong>Doop</strong>, describe it as a design canvas, and paste this as the MCP server URL.
-                Choose <strong>OAuth</strong>, review the permissions, then select <strong>Create as a plugin</strong>.
-                Sign in to Doop when prompted and install the resulting plugin.
+                將其命名為 <strong>Doop</strong>，簡介填寫為設計畫布，並將此網址貼為 MCP 伺服器 URL。
+                選擇 <strong>OAuth</strong>，檢視權限後選擇 <strong>建立為外掛程式</strong>。
+                依提示登入 Doop 並完成安裝。
               </>
             ),
             code: mcpUrl,
@@ -321,23 +321,23 @@ function agentSteps(
           {
             ...pointAt,
             body: prompt
-              ? 'Start a new chat, type @ and select Doop, then send this as your first message.'
-              : 'Start a new chat, type @ and select Doop, then tell it which canvas to work on.',
+              ? '開啟新的對話，輸入 @ 並選擇 Doop，然後將此作為第一則訊息傳送。'
+              : '開啟新的對話，輸入 @ 並選擇 Doop，然後指定要在哪個畫布上工作。',
           },
         ],
       }
     case 'codex':
       return {
-        lede: 'Add Doop from the desktop app, sign in, and start designing with Codex.',
+        lede: '從桌面端應用程式新增 Doop，登入後即可開始使用 Codex 進行設計。',
         steps: [
           {
-            title: 'Add Doop to Codex',
-            body: 'Doop Desktop configures Codex for you. This works with Codex CLI and the Codex tab in the ChatGPT desktop app.',
+            title: '新增 Doop 至 Codex',
+            body: 'Doop Desktop 會為您自動設定 Codex。支援 Codex CLI 以及 ChatGPT 桌面應用的 Codex 分頁。',
             action: <CodexInstall mcpUrl={mcpUrl} canvasId={canvasId} />,
           },
           {
-            title: 'Sign in from Codex',
-            body: 'Open a new Codex chat. If Doop needs authentication, sign in from its MCP settings. For Codex CLI, run the command below and approve the connection in your browser.',
+            title: '從 Codex 登入',
+            body: '開啟新的 Codex 對話。若 Doop 需要驗證，請從其 MCP 設定中登入。若使用 Codex CLI，請執行下方指令並於瀏覽器中核准連線。',
             code: 'codex mcp login doop',
           },
           pointAt,
@@ -345,42 +345,41 @@ function agentSteps(
       }
     case 'cursor':
       return {
-        lede: 'Add Doop to Cursor, sign in, and start designing together.',
+        lede: '將 Doop 新增至 Cursor，登入後即可一同協同設計。',
         steps: [
           {
-            title: 'Add Doop to Cursor',
-            body: 'Open Cursor and review the server connection. No file download needed.',
+            title: '新增 Doop 至 Cursor',
+            body: '開啟 Cursor 並檢視伺服器連線。無需下載任何檔案。',
             action: <CursorInstall mcpUrl={mcpUrl} />,
           },
           {
-            title: 'Approve the sign-in',
-            body: 'Enable the doop server in Cursor and complete its browser sign-in. Your agent can then work on the canvases you can access.',
+            title: '核准登入連線',
+            body: '在 Cursor 中啟用 doop 伺服器並完成瀏覽器登入授權。您的 Agent 即可存取您有權限的畫布。',
           },
           {
             ...pointAt,
             body: prompt
-              ? 'Open the Agent chat and send this as your first message.'
-              : 'Open the Agent chat and tell it which canvas to work on.',
+              ? '開啟 Agent 對話並將此作為第一則訊息傳送。'
+              : '開啟 Agent 對話並指定要在哪個畫布上工作。',
           },
         ],
       }
     case 'mcp':
       return {
-        lede: 'Doop is a streamable-HTTP MCP server with OAuth. Any client that supports that can design here.',
+        lede: 'Doop 是一座支援串流 HTTP 與 OAuth 的 MCP 伺服器。任何支援該標準的客戶端均可在此設計。',
         steps: [
           {
-            title: "Add this server to your client's MCP config",
+            title: "將此伺服器新增至客戶端的 MCP 設定檔",
             body: (
               <>
-                Windsurf, Zed, Cline and VS Code all read a JSON file like this. Paste the <code>doop</code> entry into
-                it.
+                Windsurf、Zed、Cline 與 VS Code 皆讀取類似這樣的 JSON 設定檔。將 <code>doop</code> 設定項目貼入其中。
               </>
             ),
             code: jsonConfig,
           },
           {
-            title: 'Approve the sign-in',
-            body: 'The first time your client connects, a browser tab opens to authorize it. The agent then works as you, and its edits are attributed to you.',
+            title: '核准登入連線',
+            body: '客戶端首次連線時，會開啟瀏覽器分頁進行授權。Agent 隨後將以您的身分執行，所有變更皆記錄於您的名下。',
           },
           pointAt,
         ],
@@ -410,7 +409,7 @@ function AgentSteps({
      rest lives behind get_guide. The only thing this prompt knows that they don't is
      which canvas the human is looking at. */
   const prompt = canvasId
-    ? `Work on Doop canvas ${canvasId}. Start with get_guide({ topic: "doop-instructions" }) and follow it.`
+    ? `請在 Doop 畫布 ${canvasId} 上進行設計。首先呼叫 get_guide({ topic: "doop-instructions" }) 並遵循其指引。`
     : ''
   const { lede, steps } = agentSteps(agent, mcpUrl, prompt, claudeConnection, canvasId)
   return (
@@ -421,13 +420,13 @@ function AgentSteps({
             {option.icon}
           </span>
           <div>
-            <ModalTitle>Connect {option.name}</ModalTitle>
+            <ModalTitle>連線 {option.name}</ModalTitle>
             <ModalLede className="mt-1">{lede}</ModalLede>
           </div>
         </div>
 
         {agent === 'claude' && (
-          <div className="mt-5 flex gap-2" role="group" aria-label="Claude connection method">
+          <div className="mt-5 flex gap-2" role="group" aria-label="Claude 連線方式">
             {(['web', 'desktop'] as const).map((connection) => (
               <Button
                 key={connection}
@@ -436,7 +435,7 @@ function AgentSteps({
                 aria-pressed={claudeConnection === connection}
                 onClick={() => setClaudeConnection(connection)}
               >
-                {connection === 'desktop' ? 'Desktop app' : 'Connect online'}
+                {connection === 'desktop' ? '桌面端應用' : '線上連線'}
               </Button>
             ))}
           </div>
@@ -464,10 +463,10 @@ function AgentSteps({
         </ol>
 
         {agent === 'claude' && claudeConnection === 'web' && claudeConnectorInstallUrl(mcpUrl) && (
-          <Disclosure label="Connection help" className="mt-4 text-label leading-relaxed text-ink-soft">
+          <Disclosure label="連線說明" className="mt-4 text-label leading-relaxed text-ink-soft">
             <p>
-              If Claude asks you to sign in first, return here and click Add to Claude again. You can also use{' '}
-              <strong>Customize → Connectors → Add custom connector</strong> in Claude with this address:
+              若 Claude 要求您先登入，請返回此處並再次點擊「新增至 Claude」。您也可以在 Claude 中透過{' '}
+              <strong>自訂 → 連接器 → 新增自訂連接器</strong> 並填入以下位址：
             </p>
             <CodeBlock text={mcpUrl} className="mt-2" />
           </Disclosure>
@@ -475,7 +474,7 @@ function AgentSteps({
 
         {agent === 'mcp' && (
           <p className="mt-4 text-xs leading-[1.5] text-ink-faint">
-            No browser to sign in with (n8n, Mastra, CI)? Mint an agent key in{' '}
+            沒有瀏覽器可供登入（例如 n8n、Mastra、CI）？您可以在{' '}
             <button
               type="button"
               className="font-medium text-accent-ink underline underline-offset-2"
@@ -483,9 +482,9 @@ function AgentSteps({
                 navigate(`/settings?pane=keys${canvasId ? `&from=${encodeURIComponent(`/c/${canvasId}`)}` : ''}`)
               }
             >
-              Settings → Agent keys
+              設定 → 代理金鑰
             </button>{' '}
-            and send it as <code>Authorization: Bearer dpk_…</code>. The key acts as you, on the canvases you can reach.
+            產生代理金鑰，並以 <code>Authorization: Bearer &lt;key&gt;</code> 標頭傳送。金鑰代表您的身分，具有您可存取畫布的相同權限。
           </p>
         )}
       </div>
@@ -498,9 +497,9 @@ function AgentSteps({
           onClick={onBack}
         >
           <ChevronLeftIcon width={14} height={14} />
-          Back
+          返回
         </button>
-        <Button onClick={onClose}>Done</Button>
+        <Button onClick={onClose}>完成</Button>
       </ModalActions>
     </>
   )
@@ -568,12 +567,12 @@ export function AgentArrival({ name }: { name?: string }) {
   return arrived ? (
     <span className="mr-auto inline-flex items-center gap-[7px] text-body text-success-ink">
       <CheckIcon size={14} />
-      {arrived.name} is here — it worked
+      {arrived.name} 已連線 — 成功加入
     </span>
   ) : (
     <span className="mr-auto inline-flex items-center gap-[7px] text-body text-ink-faint">
-      <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> listening for{' '}
-      {name ?? 'your agent'}…
+      <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> 正在等待{' '}
+      {name ?? '您的 Agent'}……
     </span>
   )
 }

@@ -381,24 +381,24 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   ...[
     {
       id: 'approved-sizes',
-      name: 'Make different sizes',
-      blurb: 'Adapt approved designs into square, portrait and landscape drafts.',
+      name: '產生不同尺寸規格',
+      blurb: '將核准的設計轉為正方形、直向與橫向草稿。',
       prompt:
-        'Use draft assets from earlier steps when available, otherwise use the approved sources. For each input, create separate draft frames at 1080×1080, 1080×1920 and 1200×628. Recompose the layout for each size; preserve the brand, message and focal point. Check text fit and keep the original untouched.',
+        '若有前一步驟的草稿素材則優先使用，否則使用已核准的來源。針對每個輸入，分別建立 1080×1080、1080×1920 與 1200×628 的獨立草稿畫框。針對各尺寸重新調整版面排版，同時保留品牌風格、核心訊息與視覺焦點。檢查文字適配度並保持原始畫框不受更動。',
     },
     {
       id: 'approved-localization',
-      name: 'Localize approved designs',
-      blurb: 'Translate approved designs and adapt their layouts.',
+      name: '在地化翻譯核准設計',
+      blurb: '翻譯已核准的設計並調整其版面配置。',
       prompt:
-        'Use draft assets from earlier steps when available, otherwise use the approved sources. For each input, create German, French and Spanish draft versions. Adapt idioms, typography and layout for the language and text length. Preserve brand names and the original intent. Name each new frame with its language; keep the original untouched.',
+        '若有前一步驟的草稿素材則優先使用，否則使用已核准的來源。針對每個輸入，建立德文、法文與西班牙文草稿版本。依據該語言習慣與文字長度調整慣用語、字型排印與版面結構。保留品牌名稱與原始設計意圖。以對應語言為每個新畫框命名，並保持原始畫框不受更動。',
     },
     {
       id: 'approved-assets',
-      name: 'Create companion assets',
-      blurb: 'Turn an approved direction into a campaign set.',
+      name: '建立系列配套資產',
+      blurb: '將核准的設計方向轉化為整套行銷宣傳資產。',
       prompt:
-        'Use draft assets from earlier steps when available, otherwise use the approved sources. Create three companion draft assets for each input: a 1200×628 social banner, a 600×300 email header and a 1440×600 website hero. Carry over the visual direction and adapt copy and composition to each use. Keep the original untouched.',
+        '若有前一步驟的草稿素材則優先使用，否則使用已核准的來源。針對每個輸入建立三組配套草稿資產：1200×628 社群橫幅、600×300 電子報首圖以及 1440×600 網站 Hero 主視覺。延續其視覺風格方向，並依據不同用途調整文案與構圖。保持原始畫框不受更動。',
     },
   ].map((preset): AutomationExample => ({
     id: preset.id,
@@ -410,83 +410,83 @@ export const AUTOMATION_EXAMPLES: AutomationExample[] = [
   })),
   {
     id: 'weekly-creatives',
-    name: 'Weekly ad creatives',
-    blurb: 'Pull every active Meta ad onto a canvas each Monday.',
+    name: '每週廣告創意',
+    blurb: '每週一將所有投放中的 Meta 廣告抓取至畫布。',
     schedule: { kind: 'weekly', weekday: 1, hour: 9, minute: 0 },
     steps: [{ type: 'pull', provider: 'meta', accountId: '', filter: 'active' }],
   },
   {
     id: 'ad-variants',
-    name: 'Ad variants',
-    blurb: 'Pull this week’s creatives, then have Doop spin up five variants of each.',
+    name: '廣告變體生成',
+    blurb: '抓取本週廣告創意，再由 Doop 為每個廣告快速生成 5 組變體。',
     schedule: { kind: 'weekly', weekday: 1, hour: 9, minute: 0 },
     steps: [
       { type: 'pull', provider: 'meta', accountId: '', filter: 'active' },
       {
         type: 'agent',
-        title: 'Make variants',
+        title: '製作變體',
         prompt:
-          'For every ad creative pulled in today, make five variants as new frames next to it: a stronger headline, a different visual hierarchy, a bolder colour treatment, a shorter copy version, and one that leads with social proof. Keep the brand intact.',
+          '針對今天匯入的每個廣告創意，在其旁邊建立 5 個新畫框作為變體：更吸睛的標題、不同的視覺層級、更鮮明大膽的配色處理、更精簡的文案版本，以及以社群口碑證言為主的版本。請確保品牌識別完整一致。',
         roles: ['doop'],
       },
     ],
   },
   {
     id: 'friday-ux',
-    name: 'Friday UX review',
-    blurb: 'The UX Lead reviews everything that changed this week.',
+    name: '週五 UX 審查',
+    blurb: '由 UX 負責人審查本週所有變更內容。',
     schedule: { kind: 'weekly', weekday: 5, hour: 16, minute: 0 },
     steps: [
       {
         type: 'agent',
-        title: 'Weekly review',
+        title: '每週審查',
         prompt:
-          'Review every frame on this canvas as an interface someone has to use. Fix unclear primary actions, muddled hierarchy and missing states. Leave a short note of what you changed.',
+          '將此畫布上的每個畫框視為真實使用者會操作的介面進行審查。修復不明確的主要操作按鈕、混亂的視覺層級與缺漏的狀態。最後留下一則簡短說明記錄修改內容。',
         roles: ['ux'],
       },
     ],
   },
   {
     id: 'brand-a11y',
-    name: 'Brand and accessibility check',
-    blurb: 'Bring every frame back on brand and up to WCAG AA.',
+    name: '品牌與無障礙檢查',
+    blurb: '讓所有畫框符合品牌規範並達到 WCAG AA 標準。',
     schedule: { kind: 'weekly', weekday: 3, hour: 10, minute: 0 },
     steps: [
       {
         type: 'agent',
-        title: 'Brand pass',
+        title: '品牌審查',
         prompt:
-          'Check every frame on this canvas against the brand as established here — palette, type, radii, tone — and against WCAG AA contrast and semantics. Fix what fails without redesigning.',
+          '依據此處建立的品牌規範（調色盤、字體、圓角、語調）以及 WCAG AA 對比度與語意結構，檢查畫布上的每個畫框。在不重新設計的前提下修復不符規範之處。',
         roles: ['brand'],
       },
     ],
   },
   {
     id: 'copy-pass',
-    name: 'Weekly copy pass',
-    blurb: 'The Copywriter tightens every headline and label.',
+    name: '每週文案潤飾',
+    blurb: '由文案撰寫者精煉每個標題與按鈕標籤。',
     schedule: { kind: 'weekly', weekday: 2, hour: 9, minute: 30 },
     steps: [
       {
         type: 'agent',
-        title: 'Copy pass',
+        title: '文案潤飾',
         prompt:
-          'Go through every frame on this canvas and tighten the copy: specific headlines, short labels, concrete CTAs, no filler. Keep every line inside its existing box.',
+          '逐一檢視此畫布上的每個畫框並精煉文案：撰寫明確具體的標題、簡短的標籤、具體的行動呼籲（CTA），去除冗言贅字。確保每行文字都在原有的框架容器內不溢出。',
         roles: ['copy'],
       },
     ],
   },
   {
     id: 'nightly-polish',
-    name: 'Nightly polish',
-    blurb: 'Visual Polish tidies spacing and alignment every evening.',
+    name: '夜間視覺精修',
+    blurb: '每晚由視覺精修角色整理間距與對齊。',
     schedule: { kind: 'weekdays', weekday: 1, hour: 22, minute: 0 },
     steps: [
       {
         type: 'agent',
-        title: 'Polish',
+        title: '視覺精修',
         prompt:
-          'Polish every frame on this canvas: optical alignment, one spacing scale, even type ramp, nothing overflowing at the frame size. Small surgical changes only.',
+          '精修此畫布上的每個畫框：視覺光學對齊、統一間距尺度、平滑字級階梯，並確保在該畫框尺寸下無任何內容溢出。僅進行精細的微調修正。',
         roles: ['polish'],
       },
     ],

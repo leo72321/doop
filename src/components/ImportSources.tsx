@@ -23,9 +23,9 @@ export interface ImportSource {
 export function SourcePicker({ sources, onPick }: { sources: ImportSource[]; onPick: (id: string) => void }) {
   return (
     <>
-      <ModalTitle>Import into Doop</ModalTitle>
+      <ModalTitle>匯入至 Doop</ModalTitle>
       <ModalLede>
-        Pick a source. Imports that find several pages or frames show a review before anything lands.
+        選擇來源。若匯入找到多個頁面或畫框，會在正式置入前提供預覽審查。
       </ModalLede>
       <div className="mt-6 grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-3">
         {sources.map((source) => (
@@ -47,7 +47,7 @@ export function SourcePicker({ sources, onPick }: { sources: ImportSource[]; onP
             <b className="mt-4 text-lead font-semibold tracking-[-0.012em]">{source.title}</b>
             <span className="mt-1 text-body leading-[1.45] text-ink-soft">{source.blurb}</span>
             {source.soon ? (
-              <span className="absolute right-4 top-4 text-caption text-ink-faint">Soon</span>
+              <span className="absolute right-4 top-4 text-caption text-ink-faint">即將推出</span>
             ) : (
               <span className="absolute bottom-3.5 right-4 text-accent-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                 <ArrowRightIcon className="size-4" />
@@ -88,7 +88,7 @@ export function ImportStepFooter({
       <span className="mr-auto min-w-0 text-label leading-[1.4] text-ink-faint">{note}</span>
       <Button variant="ghost" className="flex-none gap-2" disabled={backDisabled} onClick={onBack}>
         <ArrowLeftIcon className="size-3.5" />
-        Back
+        返回
       </Button>
       {children}
     </div>

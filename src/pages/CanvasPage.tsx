@@ -164,7 +164,7 @@ const STARTER_HTML = `<!doctype html>
 </style>
 </head>
 <body>
-  <p>Design me — edit the HTML, or ask an agent.</p>
+  <p>開始設計 — 編輯 HTML，或指派任務給 Agent。</p>
 </body>
 </html>`
 

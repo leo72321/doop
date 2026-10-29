@@ -102,20 +102,19 @@ const WELCOME_HTML = `<!doctype html>
 </style>
 </head>
 <body>
-  <div class="eyebrow">Designed live · by an agent</div>
-  <h1>You just watched an <em>agent</em> design this frame.</h1>
+  <div class="eyebrow">即時設計 · 由 Agent 驅動</div>
+  <h1>您剛剛親眼見證了 <em>Agent</em> 設計這個畫框。</h1>
   <p class="lede">
-    Every character streamed in through the same door your own AI will use: an MCP tool call,
-    revealed live to everyone on the canvas — with its status in the strip below, a task in the
-    panel on the right, and a line in the activity feed.
+    每個字元都是透過您自己的 AI 將會使用的相同途徑即時串流傳入：MCP 工具呼叫。
+    畫布上的每個人都能即時看見其生成過程 — 包含下方狀態列的動態、右側面板中的任務進度，以及活動動態摘要中的每一筆紀錄。
   </p>
   <div class="steps">
-    <div class="step"><span class="n">1</span><p>Hit <span class="btn-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>Connect AI</span> in the top bar and copy the command for your agent.</p></div>
-    <div class="step"><span class="n">2</span><p>Approve the connection in the browser popup — your agent then works <em>as you</em>.</p></div>
-    <div class="step"><span class="n">3</span><p>Ask it to design something. Watch this canvas while it works.</p></div>
+    <div class="step"><span class="n">1</span><p>點擊頂部工具列的 <span class="btn-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>連線 AI</span> 並複製適用於您 Agent 的指令。</p></div>
+    <div class="step"><span class="n">2</span><p>在瀏覽器快顯視窗中核准連線 — 您的 Agent 將會<em>以您的身分</em>協同工作。</p></div>
+    <div class="step"><span class="n">3</span><p>請它設計任何內容，並在畫布上即時觀看它的創作過程。</p></div>
   </div>
   <div class="foot">
-    <span>Reply to any task with ↩ — agents pick your feedback up mid-flight.</span>
+    <span>在任何任務中按下 ↩ 回覆 — Agent 會在執行中即時接收您的回饋。</span>
     <span class="sig">— Doop</span>
   </div>
 </body>
@@ -129,12 +128,12 @@ async function play(canvasId: string) {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
   await sleep(1500) // let the room render before the show starts
-  actions.setAgentStatus(canvasId, actor, 'Sketching you a welcome…')
+  actions.setAgentStatus(canvasId, actor, '正在為您繪製歡迎畫面……')
 
   await sleep(700)
   const frame = actions.createFrame(
     canvasId,
-    { name: 'Welcome to Doop', x: 120, y: 120, width: 760, height: 560, html: '', demo: true },
+    { name: '歡迎使用 Doop', x: 120, y: 120, width: 760, height: 560, html: '', demo: true },
     actor,
   )
   if (!frame) return
@@ -147,7 +146,7 @@ async function play(canvasId: string) {
 
   /* wait for the reveal to catch up (~500 chars/s) before signing off */
   await sleep(Math.min(20_000, WELCOME_HTML.length * 2 + 3000))
-  actions.setAgentStatus(canvasId, actor, 'Done — connect your own agent next')
+  actions.setAgentStatus(canvasId, actor, '完成 — 接下來請連線您的專屬 Agent')
   await sleep(6000)
   actions.setAgentStatus(canvasId, actor, '') // clear: completes the task, presence expires on its own
 }
