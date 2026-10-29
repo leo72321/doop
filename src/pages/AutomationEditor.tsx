@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { clientIntegrations } from '../integrations'
 import { useEffect, useRef, useState } from 'react'
 import type { CanvasMeta } from '../../shared/types'

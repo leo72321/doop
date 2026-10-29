@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { useId, useState } from 'react'
 import type { ElementInfo, StylePatch } from '../lib/frameBridge'
 import { flexAlignmentAt, flexAxes } from '../lib/flexLayout'

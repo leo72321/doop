@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AuthCard, AuthCardText, AuthScreen } from '../components/ui/screen'
 import { Button } from '../components/ui/button'
 import { Callout } from '../components/ui/callout'
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 
 export function OAuthConsent({ email }: { email: string }) {
   const { t } = useI18n()

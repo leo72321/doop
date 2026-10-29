@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { Button } from './ui/button'
 import { ArrowLeftIcon, ArrowRightIcon } from './ui/icons'
 import { ModalLede, ModalTitle } from './ui/modal'

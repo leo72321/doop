@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { canEditOpenCanvas, pickedSelectors, roleOf, useStore } from '../lib/store'
 import { MOD_KEY, isHideUiShortcut } from '../lib/keys'

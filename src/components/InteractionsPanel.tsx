@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { useMemo } from 'react'
 import type { Frame } from '../../shared/types'
 import { canvasPages, framePageId } from '../../shared/pages'

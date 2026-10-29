@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { useCallback, useEffect, useState } from 'react'
 import type { WorkspaceDetail, WorkspaceRole, WorkspaceSummary } from '../../shared/types'
 import { formatUsd, STATUS_LABELS, TEAM_SEAT_PRICE } from '../../shared/billing'

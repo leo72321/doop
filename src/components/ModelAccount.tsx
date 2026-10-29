@@ -1,4 +1,4 @@
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { planRow, planMark, planPill, planAsCode, actionsRow } from './ui/model-plan'
 import { BrandMark } from './ui/brand-mark'
 import { AgentIcon } from './AgentIcon'

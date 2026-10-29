@@ -42,7 +42,7 @@ import { Textarea } from './ui/textarea'
 import { ImageFill } from './ImageFill'
 import { InteractionsPanel } from './InteractionsPanel'
 import { Tooltip } from './ui/tooltip'
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import {
   AlignCenterIcon,
   AlignJustifyIcon,

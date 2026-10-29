@@ -34,7 +34,7 @@ import {
 import { MoreHorizontalIcon, TrashIcon } from '../components/ui/icons'
 import { DashContent, DashHeader, DashLayout, DashMain, DashTitle } from '../components/ui/dash'
 import { cn } from '@/lib/utils'
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 
 /** The browser's zone — what "Monday 09:00" means to the person setting it up. */
 export function localTimeZone(): string {
