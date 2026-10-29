@@ -18,6 +18,7 @@ import { CheckIcon, ChevronLeftIcon, PuzzleIcon } from './ui/icons'
 import { Modal, ModalActions, ModalLede, ModalSpacer, ModalTitle } from './ui/modal'
 import { barPrimaryBtn } from './TopBar'
 import { cn } from '@/lib/utils'
+import { useI18n } from '../lib/i18n'
 
 /**
  * "Connect AI" is about agents that join the canvas from outside: Claude Code,
@@ -99,13 +100,24 @@ export function ConnectModal({
 /* ---------- pick the agent, then its three steps ---------- */
 
 function AgentPicker({ onPick }: { onPick: (agent: AgentId) => void }) {
+  const { t } = useI18n()
   const [agent, setAgent] = useState<AgentId>('claude-code')
+
+  const agentBlurbs: Record<AgentId, { name?: string; blurb: string }> = {
+    'claude-code': { blurb: t('connect.claudeCodeBlurb') },
+    claude: { blurb: t('connect.claudeBlurb') },
+    chatgpt: { blurb: t('connect.chatgptBlurb') },
+    codex: { blurb: t('connect.codexBlurb') },
+    cursor: { blurb: t('connect.cursorBlurb') },
+    mcp: { name: t('connect.otherMcp'), blurb: t('connect.otherMcpBlurb') },
+  }
+
   return (
     <>
       <div className={body}>
-        <ModalTitle>Choose your agent</ModalTitle>
+        <ModalTitle>{t('connect.title')}</ModalTitle>
         <ModalLede>
-          Let an agent you already use work on this canvas via MCP. Choose yours to see its connection instructions.
+          {t('connect.lede')}
         </ModalLede>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -115,8 +127,8 @@ function AgentPicker({ onPick }: { onPick: (agent: AgentId) => void }) {
               selected={agent === option.id}
               onClick={() => setAgent(option.id)}
               icon={option.icon}
-              title={option.name}
-              blurb={option.blurb}
+              title={agentBlurbs[option.id]?.name ?? option.name}
+              blurb={agentBlurbs[option.id]?.blurb ?? option.blurb}
             />
           ))}
         </div>

@@ -15,6 +15,7 @@ import { CopyIcon, DownloadIcon, FrameIcon, LockIcon } from './ui/icons'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
+import { useI18n } from '../lib/i18n'
 
 const HTML_OPEN_KEY = 'doop:inspector-html'
 
@@ -34,6 +35,7 @@ export function Inspector({
   style?: CSSProperties
 }) {
   const select = useStore((s) => s.select)
+  const { t } = useI18n()
   /* the raw HTML editor is a power tool — collapsed by default so the panel
      reads as frame properties, not a code dump; the choice sticks */
   const [showHtml, setShowHtml] = useState(() => localStorage.getItem(HTML_OPEN_KEY) === '1')
@@ -142,66 +144,66 @@ export function Inspector({
         <div className="flex items-center justify-between gap-2 border-b border-line-soft bg-sub py-1.5 pr-2 pl-3">
           <span
             className="flex min-w-0 items-center gap-1.5 text-[12px] text-ink-soft"
-            title="Locked — can’t be moved, resized or deleted on the canvas"
+            title={t('inspector.lockedTitle')}
           >
             <LockIcon className="size-3 flex-none" />
-            Locked
+            {t('inspector.locked')}
           </span>
           <Button
             variant="bare"
             className="h-6 rounded-[6px] bg-surface px-2 text-[12px] font-normal text-ink shadow-ring"
             onClick={() => setFramesLocked([frame], false)}
           >
-            Unlock
+            {t('inspector.unlock')}
           </Button>
         </div>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <InspectorGroup title="Development">
+        <InspectorGroup title={t('inspector.development')}>
           <FrameApprovalControl key={frame.id} frame={frame} hasUnsavedChanges={saveState === 'dirty'} />
         </InspectorGroup>
-        <InspectorGroup title="Position">
+        <InspectorGroup title={t('inspector.position')}>
           <div className="grid grid-cols-2 gap-1.5">
             <NumInput label="X" value={frame.x} onCommit={(v) => commitMeta({ x: v })} />
             <NumInput label="Y" value={frame.y} onCommit={(v) => commitMeta({ y: v })} />
           </div>
         </InspectorGroup>
-        <InspectorGroup title="Layout">
+        <InspectorGroup title={t('inspector.layout')}>
           <div className="grid grid-cols-2 gap-1.5">
             <NumInput label="W" value={frame.width} onCommit={(v) => commitMeta({ width: Math.max(120, v) })} />
             <NumInput label="H" value={frame.height} onCommit={(v) => commitMeta({ height: Math.max(80, v) })} />
           </div>
         </InspectorGroup>
-        <InspectorGroup title="Export">
+        <InspectorGroup title={t('inspector.export')}>
           <div className="grid grid-cols-2 gap-1.5">
             <Button
               variant="bare"
               className={fillBtn}
-              title="Download as PNG (2×)"
+              title={t('inspector.downloadPngTitle')}
               onClick={() => void downloadFrameExport(frame, 'png')}
             >
-              PNG
+              {t('inspector.downloadPng')}
             </Button>
             <Button
               variant="bare"
               className={fillBtn}
-              title="Download as JPG (2×)"
+              title={t('inspector.downloadJpgTitle')}
               onClick={() => void downloadFrameExport(frame, 'jpg')}
             >
-              JPG
+              {t('inspector.downloadJpg')}
             </Button>
             <Button
               variant="bare"
               className={cn(fillBtn, 'col-span-2')}
-              title="Copy the image (2×) to paste anywhere"
+              title={t('inspector.copyAsPngTitle')}
               onClick={() => void copyFramePng(frame)}
             >
-              Copy as PNG
+              {t('inspector.copyAsPng')}
             </Button>
             <Button
               variant="bare"
               className={cn(fillBtn, 'col-span-2')}
-              title="Public image URL — always renders the current design; paste it as og:image or a blog featured image"
+              title={t('inspector.copyImageUrlTitle')}
               onClick={() => {
                 navigator.clipboard.writeText(`${location.origin}/i/${frame.id}.png?scale=2`).then(() => {
                   setCopiedUrl(true)
@@ -209,18 +211,18 @@ export function Inspector({
                 }, console.error)
               }}
             >
-              {copiedUrl ? 'Copied' : 'Copy image URL'}
+              {copiedUrl ? t('inspector.copied') : t('inspector.copyImageUrl')}
             </Button>
           </div>
         </InspectorGroup>
-        <InspectorGroup title="Memory">
+        <InspectorGroup title={t('inspector.memory')}>
           <Button
             variant="bare"
             className={cn(fillBtn, 'w-full')}
-            title="Add to design memory — will be used as reference"
+            title={t('inspector.pinReferenceTitle')}
             onClick={() => api.pinReference(frame.canvasId, frame.id).catch(console.error)}
           >
-            Pin as reference
+            {t('inspector.pinReference')}
           </Button>
         </InspectorGroup>
         <Collapsible className="flex min-h-0 flex-col" open={showHtml} onOpenChange={toggleHtml}>
@@ -229,35 +231,35 @@ export function Inspector({
             <button
               type="button"
               aria-expanded={showHtml}
-              title={showHtml ? 'Hide the HTML editor' : 'Edit the HTML'}
+              title={showHtml ? t('inspector.hideHtmlEditor') : t('inspector.editHtml')}
               onClick={() => toggleHtml(!showHtml)}
               className="mb-1.5 -ml-1 flex h-5 items-center gap-1 rounded-[5px] px-1 text-[12px] text-ink-soft hover:text-ink"
             >
-              Code
+              {t('inspector.code')}
             </button>
             <div className="grid grid-cols-2 gap-1.5">
               <Button
                 variant="bare"
                 className={cn(fillBtn, 'gap-1.5')}
-                title="Copy the frame's HTML"
+                title={t('inspector.copyCodeTitle')}
                 onClick={copyHtml}
               >
                 <CopyIcon className="size-3.5" />
-                {htmlCopy === 'copied' ? 'Copied' : 'Copy'}
+                {htmlCopy === 'copied' ? t('inspector.copied') : t('inspector.copyCode')}
               </Button>
               <Button
                 variant="bare"
                 className={cn(fillBtn, 'gap-1.5')}
-                title="Save the frame's HTML as a file"
+                title={t('inspector.exportCodeTitle')}
                 onClick={() => downloadFrameHtml(frame, draft)}
               >
                 <DownloadIcon className="size-3.5" />
-                Export
+                {t('inspector.exportCode')}
               </Button>
             </div>
             {htmlCopy === 'failed' && (
               <p className="pt-2 text-[11px] text-accent-ink">
-                Couldn’t copy the HTML. Select it in the editor and copy it by hand.
+                {t('inspector.copyHtmlFailed')}
               </p>
             )}
           </div>
@@ -276,7 +278,7 @@ export function Inspector({
       </div>
       <footer className="flex flex-none items-center justify-between gap-2 border-t border-line-soft py-2 pr-2 pl-3">
         <span className="min-w-0 truncate text-[11px] text-ink-faint">
-          {saveState === 'dirty' ? 'saving…' : saveState === 'saved' ? 'saved' : `last edit by ${frame.updatedBy}`}
+          {saveState === 'dirty' ? t('inspector.saving') : saveState === 'saved' ? t('inspector.saved') : t('inspector.lastEditBy', { user: frame.updatedBy })}
         </span>
         <span className="flex flex-none items-center gap-0.5">
           <Button
@@ -285,17 +287,17 @@ export function Inspector({
             className="h-7 rounded-[7px] px-2 text-[12px] font-normal"
             onClick={() => setHistoryOpen(true)}
           >
-            History
+            {t('inspector.history')}
           </Button>
           <Button
             variant="bare-danger"
             size="sm"
             className="h-7 rounded-[7px] px-2 text-[12px] font-normal"
             disabled={!!frame.locked}
-            title={frame.locked ? 'Unlock the frame to delete it' : undefined}
+            title={frame.locked ? t('inspector.deleteLockedTitle') : undefined}
             onClick={() => deleteFrameTracked(frame)}
           >
-            Delete
+            {t('inspector.delete')}
           </Button>
         </span>
       </footer>

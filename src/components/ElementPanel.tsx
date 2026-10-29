@@ -42,6 +42,7 @@ import { Textarea } from './ui/textarea'
 import { ImageFill } from './ImageFill'
 import { InteractionsPanel } from './InteractionsPanel'
 import { Tooltip } from './ui/tooltip'
+import { useI18n } from '../lib/i18n'
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -112,6 +113,7 @@ export function ElementPanel({
   /* the tab sticks across elements and visits: walking the tree in HTML
      view must not snap back to Design on every row */
   const [tab, setTab] = useState<Tab>(readTab)
+  const { t } = useI18n()
   const prototypeMode = useStore((s) => s.prototypeMode)
   /* Values belong to their selector. A newly selected element shows loading
      placeholders until its own read lands, so old values cannot be edited. */
@@ -221,9 +223,9 @@ export function ElementPanel({
       >
         <PanelHeader className="pl-2">
           <PanelTabs>
-            <PanelTab value="design">Design</PanelTab>
-            <PanelTab value="html">HTML</PanelTab>
-            <PanelTab value="prototype">Prototype</PanelTab>
+            <PanelTab value="design">{t('element.design')}</PanelTab>
+            <PanelTab value="html">{t('element.html')}</PanelTab>
+            <PanelTab value="prototype">{t('element.prototype')}</PanelTab>
           </PanelTabs>
           <PanelClose onClick={close} />
         </PanelHeader>
@@ -233,15 +235,15 @@ export function ElementPanel({
           </span>
           <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-ink">
             {name}
-            <small className="ml-[5px] text-[11px] font-normal text-ink-faint">in {parentLabel}</small>
+            <small className="ml-[5px] text-[11px] font-normal text-ink-faint">{t('element.inParent', { parent: parentLabel })}</small>
           </span>
           {parentNode && (
-            <Tooltip label="Select parent" side="bottom" align="end">
+            <Tooltip label={t('element.selectParent')} side="bottom" align="end">
               <Button
                 variant="bare"
                 size="icon-sm"
                 className="size-[22px] text-ink-faint hover:bg-paper-deep hover:text-ink"
-                aria-label="Select parent"
+                aria-label={t('element.selectParent')}
                 onClick={() =>
                   useStore.getState().setSelectedElement({ frameId: frame.id, selector: parentNode.selector })
                 }

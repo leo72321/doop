@@ -4,6 +4,7 @@ import { isDrawingTool } from '../lib/tools'
 import { useIsMobile } from '../hooks/use-mobile'
 import { MOD_KEY } from '../lib/keys'
 import { cn } from '../lib/utils'
+import { useI18n } from '../lib/i18n'
 import { MenuHint } from './ui/menu'
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ export function ZoomControls({
   const drawing = useStore((s) => isDrawingTool(s.tool))
   const rulers = useStore((s) => s.rulers)
   const toggleRulers = useStore((s) => s.toggleRulers)
+  const { t } = useI18n()
   /* phones have no room for shortcut hints, and no keyboard to use them */
   const hint = (keys: string) => !isMobile && <MenuHint>{keys}</MenuHint>
   const stepBtn = 'min-h-0'
@@ -58,42 +60,42 @@ export function ZoomControls({
         hidden && 'hidden',
       )}
     >
-      <ToolbarButton aria-label="Zoom out" className={stepBtn} onClick={onZoomOut}>
+      <ToolbarButton aria-label={t('zoom.zoomOut')} className={stepBtn} onClick={onZoomOut}>
         <MinusIcon />
       </ToolbarButton>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <ToolbarButton
-            aria-label="Zoom level"
+            aria-label={t('zoom.zoomLevel')}
             className={cn(stepBtn, 'w-auto min-w-[48px] px-1.5 font-mono text-[12px] text-ink sm:w-auto sm:px-1.5')}
           >
             <span ref={labelRef}>100%</span>
           </ToolbarButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="end" width="md">
-          <DropdownMenuItem onSelect={onZoomIn}>Zoom in{hint(`${MOD_KEY}+`)}</DropdownMenuItem>
-          <DropdownMenuItem onSelect={onZoomOut}>Zoom out{hint(`${MOD_KEY}−`)}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={onZoomIn}>{t('zoom.zoomIn')}{hint(`${MOD_KEY}+`)}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={onZoomOut}>{t('zoom.zoomOut')}{hint(`${MOD_KEY}−`)}</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={onFit}>Zoom to fit{hint('⇧1')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={onFit}>{t('zoom.zoomToFit')}{hint('⇧1')}</DropdownMenuItem>
           <DropdownMenuItem disabled={!hasSelection} onSelect={onFitSelection}>
-            Zoom to selection{hint('⇧2')}
+            {t('zoom.zoomToSelection')}{hint('⇧2')}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onZoomTo(0.5)}>Zoom to 50%</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onZoomTo(1)}>Zoom to 100%{hint(`${MOD_KEY}0`)}</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onZoomTo(2)}>Zoom to 200%</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onZoomTo(0.5)}>{t('zoom.zoomTo50')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onZoomTo(1)}>{t('zoom.zoomTo100')}{hint(`${MOD_KEY}0`)}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onZoomTo(2)}>{t('zoom.zoomTo200')}</DropdownMenuItem>
           {/* phones show no rulers, so there is nothing to toggle there */}
           {!isMobile && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={toggleRulers}>
-                {rulers ? 'Hide rulers' : 'Show rulers'}
+                {rulers ? t('zoom.hideRulers') : t('zoom.showRulers')}
                 {hint('⇧R')}
               </DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <ToolbarButton aria-label="Zoom in" className={stepBtn} onClick={onZoomIn}>
+      <ToolbarButton aria-label={t('zoom.zoomIn')} className={stepBtn} onClick={onZoomIn}>
         <PlusIcon />
       </ToolbarButton>
     </Toolbar>

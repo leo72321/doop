@@ -26,6 +26,7 @@ import { CommentsPanel } from './CommentsPanel'
 import { PromptBar } from './PromptBar'
 import { taskFrameId } from '../lib/taskFrame'
 import { useOpenThreadCount } from '../lib/comments'
+import { useI18n } from '../lib/i18n'
 
 const emptyNote = 'px-4 py-6 text-center text-[12px] text-ink-faint'
 
@@ -66,6 +67,7 @@ export function ActivityPanel({
   style?: CSSProperties
   resize?: PanelResize
 }) {
+  const { t } = useI18n()
   const tab = useStore((s) => s.panelTab)
   const setTab = useStore((s) => s.setPanelTab)
   const canEdit = useStore(canEditOpenCanvas)
@@ -92,14 +94,14 @@ export function ActivityPanel({
       <PanelTabsRoot value={tab} onValueChange={(next) => setTab(next as typeof tab)}>
         <PanelHeader className="pl-2">
           <PanelTabs aria-label="Agents panel">
-            <PanelIconTab value="tasks" icon={<SparkIcon />} title="Agents">
-              Agents
+            <PanelIconTab value="tasks" icon={<SparkIcon />} title={t('activity.agents')}>
+              {t('activity.agents')}
               {working > 0 && <em className="ml-[7px] text-[11px] font-normal not-italic text-ink-faint">{working}</em>}
             </PanelIconTab>
             <PanelIconTab
               value="comments"
               icon={<CommentIcon />}
-              title={openThreads ? `Comments · ${openThreads} open` : 'Comments — every thread pinned on this page'}
+              title={openThreads ? t('rail.commentsWithCount', { count: openThreads }) : t('activity.commentsTitle')}
               /* open threads on this page: a count on the tab itself */
               badge={
                 openThreads > 0 && (
@@ -109,20 +111,20 @@ export function ActivityPanel({
                 )
               }
             >
-              Comments
+              {t('activity.comments')}
             </PanelIconTab>
-            <PanelIconTab value="activity" icon={<PulseIcon />} title="Activity">
-              Activity
+            <PanelIconTab value="activity" icon={<PulseIcon />} title={t('activity.activity')}>
+              {t('activity.activity')}
             </PanelIconTab>
             <PanelIconTab
               value="memory"
               icon={<BookOpenIcon />}
-              title="Design memory — references, rules and decisions every agent on this canvas designs with"
+              title={t('activity.memoryTitle')}
             >
-              Memory
+              {t('activity.memory')}
             </PanelIconTab>
           </PanelTabs>
-          <PanelClose label="Close panel" onClick={onClose} />
+          <PanelClose label={t('activity.closePanel')} onClick={onClose} />
         </PanelHeader>
         {/* the Agents tab is a column: what the agents are doing scrolls above,
             the prompt composer is docked underneath */}
@@ -154,6 +156,7 @@ const RECENT_SHOWN = 3
    working on or just finished, and for whom. "Show all" opens the whole
    history in the same rows, split into what is running and what is done. */
 function RecentTasks() {
+  const { t } = useI18n()
   const tasks = useStore((s) => s.tasks)
   const [all, setAll] = useState(false)
   /* unclaimed board cards have no agent yet, so they are not activity */
@@ -162,16 +165,16 @@ function RecentTasks() {
   const finished = useMemo(() => claimed.filter((t) => t.endedAt || t.failedAt), [claimed])
 
   return (
-    <section aria-label="Recent tasks" className="flex flex-none flex-col pt-1.5 pb-1">
-      <h3 className="flex h-7 flex-none items-center px-3 text-[11.5px] font-normal text-ink-faint">Recent tasks</h3>
+    <section aria-label={t('activity.recentTasks')} className="flex flex-none flex-col pt-1.5 pb-1">
+      <h3 className="flex h-7 flex-none items-center px-3 text-[11.5px] font-normal text-ink-faint">{t('activity.recentTasks')}</h3>
       {claimed.length === 0 ? (
         <p className="px-3 pb-2 text-[12px] leading-[1.45] text-ink-faint">
-          No tasks yet. Ask the Doop Agent below, or connect your own — what agents work on shows up here.
+          {t('activity.noTasks')}
         </p>
       ) : all ? (
         <>
-          {working.length > 0 && <TaskGroup label="Working on" tasks={working} />}
-          {finished.length > 0 && <TaskGroup label="Worked on" tasks={finished} />}
+          {working.length > 0 && <TaskGroup label={t('activity.workingOn')} tasks={working} />}
+          {finished.length > 0 && <TaskGroup label={t('activity.workedOn')} tasks={finished} />}
         </>
       ) : (
         claimed.slice(0, RECENT_SHOWN).map((t) => <RecentTaskRow key={t.id} task={t} />)
@@ -183,7 +186,7 @@ function RecentTasks() {
           aria-expanded={all}
           onClick={() => setAll((v) => !v)}
         >
-          {all ? 'Show less' : 'Show all'}
+          {all ? t('activity.showLess') : t('activity.showAll')}
           <ChevronDownIcon className={cn('size-3 text-ink-faint transition-transform', all && 'rotate-180')} />
         </Button>
       )}

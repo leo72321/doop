@@ -10,6 +10,7 @@ import { AgentKeys } from '../components/AgentKeys'
 import { Webhooks } from '../components/Webhooks'
 import { AccountMenu } from '../components/DashShell'
 import { railLayout } from '../components/AppRail'
+import { useI18n } from '../lib/i18n'
 import { BellIcon, ChevronLeftIcon, KeyIcon, MoonIcon, SparkIcon, UserIcon } from '../components/ui/icons'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Button } from '../components/ui/button'
@@ -65,6 +66,7 @@ function initialPane(): Pane {
  * account menu. Only the rail's middle changes, to a settings sub-nav.
  */
 export function Settings() {
+  const { t } = useI18n()
   /* the sub-nav switches panes rather than scrolling to an anchor — on a page
      this short an anchor jump looks like nothing happened */
   const [pane, setPane] = useState<Pane>(initialPane)
@@ -74,6 +76,14 @@ export function Settings() {
      place — only same-origin canvas paths are honoured */
   const from = new URLSearchParams(location.search).get('from')
   const back = from && /^\/c\/[A-Za-z0-9_-]+$/.test(from) ? from : '/'
+
+  const localizedPanes: Record<Pane, { title: string; blurb: string }> = {
+    agent: { title: t('settings.agent'), blurb: t('settings.agentBlurb') },
+    keys: { title: t('settings.keys'), blurb: t('settings.keysBlurb') },
+    webhooks: { title: t('settings.webhooks'), blurb: t('settings.webhooksBlurb') },
+    account: { title: t('settings.account'), blurb: t('settings.accountBlurb') },
+    appearance: { title: t('settings.appearance'), blurb: t('settings.appearanceBlurb') },
+  }
 
   const meter = allowance
     ? allowance.byoModel
@@ -96,10 +106,10 @@ export function Settings() {
         <DashSidebarBrand />
         <nav className="flex flex-col gap-0.5">
           <DashNavItem density="rail" icon={<ChevronLeftIcon size="rail" />} onClick={() => navigate(back)}>
-            {back === '/' ? 'Back to canvases' : 'Back to canvas'}
+            {back === '/' ? t('settings.backToCanvases') : t('settings.backToCanvas')}
           </DashNavItem>
         </nav>
-        <DashSectionLabel density="rail">Settings</DashSectionLabel>
+        <DashSectionLabel density="rail">{t('settings.title')}</DashSectionLabel>
         <nav className="flex flex-col gap-0.5">
           <DashNavItem
             density="rail"
@@ -107,7 +117,7 @@ export function Settings() {
             active={pane === 'agent'}
             onClick={() => setPane('agent')}
           >
-            Doop Agent
+            {t('settings.agent')}
           </DashNavItem>
           <DashNavItem
             density="rail"
@@ -115,7 +125,7 @@ export function Settings() {
             active={pane === 'keys'}
             onClick={() => setPane('keys')}
           >
-            Agent keys
+            {t('settings.keys')}
           </DashNavItem>
           <DashNavItem
             density="rail"
@@ -123,7 +133,7 @@ export function Settings() {
             active={pane === 'webhooks'}
             onClick={() => setPane('webhooks')}
           >
-            Webhooks
+            {t('settings.webhooks')}
           </DashNavItem>
           <DashNavItem
             density="rail"
@@ -131,7 +141,7 @@ export function Settings() {
             active={pane === 'account'}
             onClick={() => setPane('account')}
           >
-            Your account
+            {t('settings.account')}
           </DashNavItem>
           <DashNavItem
             density="rail"
@@ -139,7 +149,7 @@ export function Settings() {
             active={pane === 'appearance'}
             onClick={() => setPane('appearance')}
           >
-            Appearance
+            {t('settings.appearance')}
           </DashNavItem>
         </nav>
         <div className="mt-auto flex items-center gap-2.5 px-1 pt-4">
@@ -150,7 +160,7 @@ export function Settings() {
       <DashMain className="[background:var(--paper)]">
         <DashHeader variant="bare" className="md:hidden">
           <Button variant="ghost" size="bar" onClick={() => navigate(back)}>
-            <ChevronLeftIcon size="rail" /> {back === '/' ? 'Canvases' : 'Canvas'}
+            <ChevronLeftIcon size="rail" /> {back === '/' ? t('settings.backToCanvases') : t('settings.backToCanvas')}
           </Button>
           <span className="flex-1" />
           <AccountMenu />
@@ -159,27 +169,27 @@ export function Settings() {
         <DashContent className="pt-2 md:pt-7">
           <div className="flex items-start gap-4 md:items-end">
             <div>
-              <DashTitle>{panes[pane].title}</DashTitle>
-              <DashSubtitle>{panes[pane].blurb}</DashSubtitle>
+              <DashTitle>{localizedPanes[pane].title}</DashTitle>
+              <DashSubtitle>{localizedPanes[pane].blurb}</DashSubtitle>
             </div>
           </div>
 
           <Tabs value={pane} onValueChange={(next) => setPane(next as Pane)} className="mt-4 flex md:hidden">
             <TabsList variant="card">
               <TabsTrigger value="agent">
-                <SparkIcon size="rail" /> Doop Agent
+                <SparkIcon size="rail" /> {t('settings.agent')}
               </TabsTrigger>
               <TabsTrigger value="keys">
-                <KeyIcon size="rail" /> Agent keys
+                <KeyIcon size="rail" /> {t('settings.keys')}
               </TabsTrigger>
               <TabsTrigger value="webhooks">
-                <BellIcon size="rail" /> Webhooks
+                <BellIcon size="rail" /> {t('settings.webhooks')}
               </TabsTrigger>
               <TabsTrigger value="account">
-                <UserIcon size="rail" /> Account
+                <UserIcon size="rail" /> {t('settings.account')}
               </TabsTrigger>
               <TabsTrigger value="appearance">
-                <MoonIcon size="rail" /> Appearance
+                <MoonIcon size="rail" /> {t('settings.appearance')}
               </TabsTrigger>
             </TabsList>
           </Tabs>
