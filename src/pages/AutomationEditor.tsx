@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n'
 import { clientIntegrations } from '../integrations'
 import { useEffect, useRef, useState } from 'react'
 import type { CanvasMeta } from '../../shared/types'
@@ -202,6 +203,7 @@ function usePan() {
  * canvas — the canvas is where the work lands, not a step of its own.
  */
 export function AutomationEditor({ automationId }: { automationId: string }) {
+  const { t } = useI18n()
   const [automation, setAutomation] = useState<Automation | null>(null)
   const [missing, setMissing] = useState(false)
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -291,7 +293,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
       setAutomation((cur) => (cur ? { ...cur, name: saved.name, updatedAt: saved.updatedAt } : cur))
     } catch (err) {
       console.error(err)
-      showToast('Couldn’t rename')
+      showToast(t('automations.cantRename'))
     }
   }
 
@@ -303,7 +305,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
     } catch (err) {
       console.error(err)
       setAutomation(automation)
-      showToast('Couldn’t save')
+      showToast(t('automations.cantSave'))
     }
   }
 
@@ -317,7 +319,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
       posthog.capture('automation_run_now', { status: run.status })
       setAutomation({ ...saved, lastRun: run })
     } catch (err) {
-      showToast(err instanceof ApiError && typeof err.body.error === 'string' ? err.body.error : 'Couldn’t run')
+      showToast(err instanceof ApiError && typeof err.body.error === 'string' ? err.body.error : t('automations.cantRun'))
     } finally {
       setRunningNow(false)
     }
@@ -381,7 +383,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
           <TopBarTitle
             loading={!draft}
             value={draft?.name ?? ''}
-            placeholder="Untitled automation"
+            placeholder={t('automations.untitled')}
             onCommit={(name) => void rename(name)}
           />
         </div>
@@ -389,7 +391,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
           <div className="ml-auto flex items-center gap-2.5">
             <span className="inline-flex items-center gap-2">
               <span className="text-caption text-ink-soft">{automation.enabled ? 'On' : 'Off'}</span>
-              <Switch checked={automation.enabled} onCheckedChange={setEnabled} aria-label="Automation on or off" />
+              <Switch checked={automation.enabled} onCheckedChange={setEnabled} aria-label={t('automations.toggle')} />
             </span>
             <BarDivider />
             <Button
@@ -415,7 +417,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
       >
         {missing ? (
           <div className="mx-auto max-w-[360px] pt-14 text-center">
-            <p className="text-copy text-ink-soft">That automation doesn’t exist any more.</p>
+            <p className="text-copy text-ink-soft">{t('automations.notExist')}</p>
             <Button variant="ghost" className="mt-3" onClick={() => navigate('/automations')}>
               Back to automations
             </Button>
@@ -498,7 +500,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
               </div>
               {draft.steps.length === 0 && (
                 <aside data-pan-node className="absolute left-[calc(50%+240px)] top-14 hidden w-[260px] lg:block">
-                  <div className="mb-2 text-caption text-ink-faint">Or start from an example</div>
+                  <div className="mb-2 text-caption text-ink-faint">{t('automations.startFromExample')}</div>
                   {AUTOMATION_EXAMPLES.map((e) => (
                     <button
                       key={e.id}
@@ -534,7 +536,7 @@ export function AutomationEditor({ automationId }: { automationId: string }) {
                   />
                 ) : (
                   <Toolbar
-                    aria-label="Runs"
+                    aria-label={t('automations.runs')}
                     orientation="vertical"
                     className="absolute right-3 top-3 z-[38] max-lg:hidden"
                   >
@@ -606,6 +608,7 @@ function WhenNode({
   onTriggerChange: (trigger: AutomationTrigger) => void
   canvases: CanvasMeta[]
 }) {
+  const { t } = useI18n()
   const dayValue =
     schedule.kind === 'daily' ? 'daily' : schedule.kind === 'weekdays' ? 'weekdays' : String(schedule.weekday)
   const time = `${pad(schedule.hour)}:${pad(schedule.minute)}`
@@ -623,7 +626,7 @@ function WhenNode({
           value={trigger.type}
           onValueChange={(type) => onTriggerChange(type === 'approval' ? { type, canvasId: '' } : { type: 'schedule' })}
         >
-          <SelectTrigger size="sm" aria-label="Automation trigger">
+          <SelectTrigger size="sm" aria-label={t('automations.trigger')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -654,7 +657,7 @@ function WhenNode({
               else onChange({ ...schedule, kind: 'weekly', weekday: Number(v) })
             }}
           >
-            <SelectTrigger size="sm" aria-label="Which days">
+            <SelectTrigger size="sm" aria-label={t('automations.whichDays')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -663,11 +666,11 @@ function WhenNode({
                   {d}
                 </SelectItem>
               ))}
-              <SelectItem value="weekdays">weekday</SelectItem>
-              <SelectItem value="daily">day</SelectItem>
+              <SelectItem value="weekdays">{t('automations.weekday')}</SelectItem>
+              <SelectItem value="daily">{t('automations.day')}</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-ink-soft">at</span>
+          <span className="text-ink-soft">{t('automations.at')}</span>
           <Select
             value={time}
             onValueChange={(v) => {
@@ -675,7 +678,7 @@ function WhenNode({
               onChange({ ...schedule, hour: h ?? 9, minute: m ?? 0 })
             }}
           >
-            <SelectTrigger size="sm" aria-label="Time">
+            <SelectTrigger size="sm" aria-label={t('automations.time')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -756,6 +759,7 @@ function DeliveryNode({
   onChange: (patch: Partial<Step>) => void
   onRemove: () => void
 }) {
+  const { t } = useI18n()
   const integration = clientIntegrations.find((i) => i.id === step.type)
   const connected = !!integrations && !!integration?.isConnected(integrations)
   const [teams, setTeams] = useState<{ id: string; name: string; key: string }[]>([])
@@ -808,7 +812,7 @@ function DeliveryNode({
           </p>
           <Textarea
             className="mt-2"
-            aria-label="Slack message"
+            aria-label={t('automations.slackMessage')}
             value={step.message}
             maxLength={MAX_PROMPT}
             onChange={(e) => onChange({ message: e.target.value })}
@@ -893,6 +897,7 @@ function PullNode({
   onChange: (patch: Partial<PullStep>) => void
   onRemove: () => void
 }) {
+  const { t } = useI18n()
   const meta = integrations?.meta
   const accounts = meta?.accounts ?? []
   return (
@@ -902,7 +907,7 @@ function PullNode({
       <div className="flex items-center gap-[9px]">
         <MetaTile size={24} />
         <div className="min-w-0">
-          <div className={kCls}>Pull · Meta Ads</div>
+          <div className={kCls}>{t('automations.pullMetaAds')}</div>
           <div className="text-copy font-semibold tracking-[-0.012em]">Ad creatives</div>
         </div>
         {meta && (
@@ -916,7 +921,7 @@ function PullNode({
         <div className="mt-2.5 text-body text-ink-faint">…</div>
       ) : !meta.connected ? (
         <div className="mt-2.5 flex items-center gap-3">
-          <span className="text-body text-ink-soft">Not connected yet</span>
+          <span className="text-body text-ink-soft">{t('automations.notConnectedYet')}</span>
           <Button variant="solid" size="sm" className="ml-auto h-8" onClick={() => navigate('/integrations')}>
             Connect Meta
           </Button>
@@ -937,7 +942,7 @@ function PullNode({
             </SelectContent>
           </Select>
           <Select value={step.filter} onValueChange={(filter) => onChange({ filter: filter as PullStep['filter'] })}>
-            <SelectTrigger size="sm" className="w-full" aria-label="Which ads">
+            <SelectTrigger size="sm" className="w-full" aria-label={t('automations.whichAds')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -968,6 +973,7 @@ function AgentNode({
   onChange: (patch: Partial<AgentStep>) => void
   onRemove: () => void
 }) {
+  const { t } = useI18n()
   /* one agent per task: a pill picks that role, nothing to un-pick */
   const roles = step.roles
   return (
@@ -977,14 +983,14 @@ function AgentNode({
       <div className="flex items-center gap-[9px]">
         <RoleMark role={roleById(roles[0])} size={24} />
         <div className="min-w-0 flex-1">
-          <div className={kCls}>Agent task</div>
+          <div className={kCls}>{t('automations.agentTask')}</div>
           <Input
             value={step.title}
             maxLength={MAX_NAME}
-            aria-label="Task title"
+            aria-label={t('automations.taskTitle')}
             variant="bare"
             inputSize="auto"
-            placeholder="Untitled task"
+            placeholder={t('automations.untitledTask')}
             className="w-full text-copy font-semibold tracking-[-0.012em] md:text-copy"
             onChange={(e) => onChange({ title: e.target.value })}
           />
@@ -995,7 +1001,7 @@ function AgentNode({
         className="mt-2.5 min-h-[74px] w-full rounded-lg px-[11px] py-2.5 text-copy leading-[1.5] md:text-copy"
         value={step.prompt}
         maxLength={MAX_PROMPT}
-        placeholder="What should the agent do on this canvas?"
+        placeholder={t('automations.whatShouldAgentDo')}
         onChange={(e) => onChange({ prompt: e.target.value })}
       />
       <div className="mt-2.5 flex flex-wrap gap-1">
@@ -1035,6 +1041,7 @@ function AgentNode({
 /** The step slot: the two things a step can be, as tiles. It is the empty
  *  automation's first slot and, later, what "+ Add step" opens in place. */
 function StepPicker({ onPick, onCancel }: { onPick: (kind: string) => void; onCancel?: () => void }) {
+  const { t } = useI18n()
   const tile =
     'flex flex-col items-start gap-2 rounded-[9px] border border-line bg-surface px-3 pb-[11px] pt-3 text-left shadow-card transition-colors hover:border-ink-faint focus-visible:outline-2 focus-visible:outline-brand'
   return (
@@ -1045,13 +1052,13 @@ function StepPicker({ onPick, onCancel }: { onPick: (kind: string) => void; onCa
     >
       <Port side="in" dashed />
       <div className="flex items-center">
-        <span className="flex-1 text-center text-copy font-semibold tracking-[-0.012em]">What should run?</span>
+        <span className="flex-1 text-center text-copy font-semibold tracking-[-0.012em]">{t('automations.whatShouldRun')}</span>
         {onCancel && (
           <Button
             variant="bare"
             size="icon-sm"
             className="absolute right-2 top-2 size-6 text-ink-faint hover:text-ink"
-            aria-label="Cancel"
+            aria-label={t('common.cancel')}
             onClick={onCancel}
           >
             <XIcon className="size-3.5" />
@@ -1070,13 +1077,13 @@ function StepPicker({ onPick, onCancel }: { onPick: (kind: string) => void; onCa
           <button type="button" key={provider} className={tile} onClick={() => onPick(provider)}>
             <PullMark provider={provider} size={22} />
             <b className="text-body font-medium">{provider === 'linear' ? 'Create Linear ticket' : 'Post to Slack'}</b>
-            <span className="text-caption text-ink-soft">Share design links and results from earlier steps.</span>
+            <span className="text-caption text-ink-soft">{t('automations.shareDesignLinks')}</span>
           </button>
         ))}
         <button type="button" className={tile} autoFocus={!!onCancel} onClick={() => onPick('pull')}>
           <MetaTile size={22} />
           <b className="text-body font-semibold tracking-[-0.012em]">Meta Ads</b>
-          <span className="text-caption leading-[1.45] text-ink-soft">Pull Meta ad creatives onto a canvas.</span>
+          <span className="text-caption leading-[1.45] text-ink-soft">{t('automations.metaAdsDesc')}</span>
         </button>
         <button type="button" className={tile} onClick={() => onPick('agent')}>
           <span className="flex">
@@ -1084,7 +1091,7 @@ function StepPicker({ onPick, onCancel }: { onPick: (kind: string) => void; onCa
               <RoleMark key={r.id} role={r} size={22} className={cn(i > 0 && '-ml-1.5 ring-[1.5px] ring-surface')} />
             ))}
           </span>
-          <b className="text-body font-semibold tracking-[-0.012em]">Agent task</b>
+          <b className="text-body font-semibold tracking-[-0.012em]">{t('automations.agentTask')}</b>
           <span className="text-caption leading-[1.45] text-ink-soft">
             Give Doop, UX Lead or another role a brief on a canvas.
           </span>
@@ -1112,6 +1119,7 @@ function RunsPanel({
   onRunNow: () => void
   onClose: () => void
 }) {
+  const { t } = useI18n()
   const [runs, setRuns] = useState<AutomationRun[] | null>(null)
   const [more, setMore] = useState(false)
   const lastRunId = automation.lastRun?.id
@@ -1154,7 +1162,7 @@ function RunsPanel({
       <PanelTabsRoot value="runs">
         <PanelHeader>
           <PanelTabs>
-            <PanelIconTab value="runs" icon={<PulseIcon />} title="Runs">
+            <PanelIconTab value="runs" icon={<PulseIcon />} title={t('automations.runs')}>
               Runs
             </PanelIconTab>
           </PanelTabs>

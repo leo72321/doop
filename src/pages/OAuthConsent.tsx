@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { AuthCard, AuthCardText, AuthScreen } from '../components/ui/screen'
 import { Button } from '../components/ui/button'
 import { Callout } from '../components/ui/callout'
+import { useI18n } from '../lib/i18n'
 
 export function OAuthConsent({ email }: { email: string }) {
+  const { t } = useI18n()
   const code = new URLSearchParams(location.search).get('consent_code') ?? ''
   const [client, setClient] = useState<{ name: string } | null>(null)
   const [error, setError] = useState('')
@@ -14,15 +16,15 @@ export function OAuthConsent({ email }: { email: string }) {
     const controller = new AbortController()
     fetch(endpoint, { signal: controller.signal })
       .then(async (res) => {
-        if (!res.ok) throw new Error('This connection request has expired. Start again from your agent.')
+        if (!res.ok) throw new Error(t('oauth.expired'))
         return res.json() as Promise<{ name: string }>
       })
       .then(setClient)
       .catch((err: unknown) => {
-        if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Could not load the connection.')
+        if (!controller.signal.aborted) setError(err instanceof Error ? err.message : t('oauth.cantLoad'))
       })
     return () => controller.abort()
-  }, [endpoint])
+  }, [endpoint, t])
 
   async function respond(accept: boolean) {
     setBusy(true)
@@ -33,30 +35,29 @@ export function OAuthConsent({ email }: { email: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accept }),
       })
-      if (!res.ok) throw new Error('Could not finish connecting. Start again from your agent.')
+      if (!res.ok) throw new Error(t('oauth.cantFinish'))
       const result = (await res.json()) as { redirectURI: string }
       location.assign(result.redirectURI)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not finish connecting.')
+      setError(err instanceof Error ? err.message : t('oauth.cantFinishGeneral'))
       setBusy(false)
     }
   }
 
   return (
     <AuthScreen>
-      <AuthCard title={client ? `Connect ${client.name}?` : 'Connect your agent'}>
-        <AuthCardText className="break-all">Signed in as {email}</AuthCardText>
+      <AuthCard title={client ? t('oauth.connectClient', { name: client.name }) : t('oauth.connectAgent')}>
+        <AuthCardText className="break-all">{t('oauth.signedInAs', { email })}</AuthCardText>
         <AuthCardText>
-          This agent will be able to read your profile and read, create, edit and delete designs on the canvases you can
-          access. Its changes will be attributed to your account.
+          {t('oauth.consentDesc')}
         </AuthCardText>
         {error && <Callout tone="error">{error}</Callout>}
         <div className="flex justify-end gap-2">
           <Button disabled={!client || busy} onClick={() => void respond(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="solid" disabled={!client || busy} onClick={() => void respond(true)}>
-            {busy ? 'Connecting…' : 'Connect'}
+            {busy ? t('oauth.connecting') : t('oauth.connect')}
           </Button>
         </div>
       </AuthCard>

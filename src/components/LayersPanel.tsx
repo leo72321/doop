@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n'
 import {
   useEffect,
   useMemo,
@@ -371,17 +372,17 @@ export function LayersPanel({
       <PanelHeader className="h-10 pl-3.5">
         <span className="flex items-center gap-2">
           <LayersIcon className="size-3.5" />
-          Layers
+          {t('layers.title')}
         </span>
         {surface === 'inline' ? (
-          <PanelClose label="Close" onClick={onClose} />
+          <PanelClose label={t('common.close')} onClick={onClose} />
         ) : (
-          <Tooltip label="Collapse panel" side="bottom" align="end">
+          <Tooltip label={t('layers.collapsePanel')} side="bottom" align="end">
             <Button
               variant="bare"
               size="icon-sm"
               className="size-7 shrink-0 rounded-[7px] text-ink-faint hover:bg-paper-deep hover:text-ink"
-              aria-label="Collapse panel"
+              aria-label={t('layers.collapsePanel')}
               onClick={() => setLayersOpen(false)}
             >
               <PanelCollapseIcon className="size-3.5" />
@@ -394,23 +395,23 @@ export function LayersPanel({
       <PagesPanel />
       <div className={cn('mt-1.5 flex h-6 flex-none items-center justify-between pr-2.5 pl-3.5', sectionHeading)}>
         <span data-slot="frame-section-heading" className={sectionHeading}>
-          Layers
+          {t('layers.title')}
         </span>
         <span className="flex gap-1">
-          <Tooltip label="Collapse all" side="bottom">
+          <Tooltip label={t('layers.collapseAll')} side="bottom">
             <Button
               variant="bare"
               size="icon-sm"
               className={sectionBtn}
-              aria-label="Collapse all"
+              aria-label={t('layers.collapseAll')}
               onClick={() => setExpanded(new Set())}
             >
               <CollapseAllIcon className="size-3.5" />
             </Button>
           </Tooltip>
           {!readOnly && (
-            <Tooltip label="New frame" side="bottom" align="end">
-              <Button variant="bare" size="icon-sm" className={sectionBtn} aria-label="New frame" onClick={onAddFrame}>
+            <Tooltip label={t('layers.newFrame')} side="bottom" align="end">
+              <Button variant="bare" size="icon-sm" className={sectionBtn} aria-label={t('layers.newFrame')} onClick={onAddFrame}>
                 <PlusIcon className="size-3.5" />
               </Button>
             </Tooltip>
@@ -468,7 +469,7 @@ export function LayersPanel({
             variant="bare"
             inputSize="auto"
             className="h-full text-[12px] placeholder:text-ink-ghost md:text-[12px]"
-            placeholder="Search layers"
+            placeholder={t('layers.searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -481,19 +482,20 @@ export function LayersPanel({
 /** The collapsed rail: a narrow column at the panel's spot with the expand
  *  control and the Layers mark. The frame count lives in the tooltip only. */
 export function LayersRailToggle() {
+  const { t } = useI18n()
   const setLayersOpen = useStore((s) => s.setLayersOpen)
   const count = usePageCanvas()?.frames.length ?? 0
   return (
     <Toolbar
-      aria-label="Layers panel"
+      aria-label={t('layers.panelAria')}
       orientation="vertical"
       className="pointer-events-auto absolute top-2.5 left-3.5 z-[35]"
     >
-      <ToolbarControl label="Expand panel" side="right" onClick={() => setLayersOpen(true)}>
+      <ToolbarControl label={t('layers.expandPanel')} side="right" onClick={() => setLayersOpen(true)}>
         <PanelExpandIcon />
       </ToolbarControl>
       <ToolbarControl
-        label={`Layers · ${count} ${count === 1 ? 'frame' : 'frames'}`}
+        label={t('layers.railCount', { count, frames: count === 1 ? t('layers.frame') : t('layers.frames') })}
         side="right"
         onClick={() => setLayersOpen(true)}
       >
@@ -580,7 +582,7 @@ function FrameRow({
         </ContextMenuTrigger>
         <FrameContextMenu frame={frame} at={pasteAt} />
       </ContextMenu>
-      {row.empty && <div className="py-1 pl-[46px] text-[11px] text-ink-faint">empty frame</div>}
+      {row.empty && <div className="py-1 pl-[46px] text-[11px] text-ink-faint">{t('layers.emptyFrame')}</div>}
     </>
   )
 }
@@ -757,7 +759,7 @@ function Row({
         >
           {onToggleHidden && (
             <RowToggle
-              label={hidden ? 'Show' : 'Hide'}
+              label={hidden ? t('layers.show') : t('layers.hide')}
               on={!!hidden}
               selected={selected}
               onToggle={onToggleHidden}
@@ -766,7 +768,7 @@ function Row({
           )}
           {onToggleLocked && (
             <RowToggle
-              label={locked ? 'Unlock' : 'Lock'}
+              label={locked ? t('layers.unlock') : t('layers.lock')}
               on={!!locked}
               selected={selected}
               onToggle={onToggleLocked}

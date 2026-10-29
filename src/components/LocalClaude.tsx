@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n'
 import { useEffect, useState } from 'react'
 import { authClient } from '../lib/auth'
 import { api } from '../lib/api'
@@ -34,8 +35,9 @@ const DESKTOP_DOWNLOAD_URL = 'https://doop.design/download/mac'
 /** The plan as a browser sees it: nothing to connect here, so the row is
  *  muted and its only action is getting the desktop app. */
 function DesktopOnlyClaudeRow({ active }: { active: boolean }) {
+  const { t } = useI18n()
   return (
-    <section aria-label="Claude Plan — desktop app" className={cn(planRow(false), 'bg-paper-deep/60')}>
+    <section aria-label={t('model.claudeDesktopTitle')} className={cn(planRow(false), 'bg-paper-deep/60')}>
       <span aria-hidden="true" className={cn(planMark(false), 'border-line bg-paper-deep opacity-50 grayscale')}>
         <AgentIcon name="claude" size={20} />
       </span>
@@ -46,11 +48,11 @@ function DesktopOnlyClaudeRow({ active }: { active: boolean }) {
           </h3>
           <span className={cn(planPill(false), 'inline-flex items-center gap-[5px] bg-paper-deep text-ink-soft')}>
             <DesktopIcon width={14} height={14} aria-hidden />
-            Desktop app
+            {t('model.claudeDesktopBadge')}
           </span>
         </div>
         <p className="mt-1.5 text-[14px] leading-[1.55] text-ink-soft max-md:text-[13.5px]">
-          Use your Claude subscription locally.
+          {t('model.claudeDesktopLede')}
         </p>
         <div className="mt-[18px] flex flex-wrap gap-[9px]">
           {CLAUDE_MODELS.map((model) => (
@@ -61,7 +63,7 @@ function DesktopOnlyClaudeRow({ active }: { active: boolean }) {
         </div>
         <div className="mt-[13px] flex items-center justify-between gap-5 max-md:flex-col max-md:items-start max-md:gap-2">
           <p className="text-[13px] text-ink-faint">
-            {active ? 'Waiting for a connected desktop.' : 'Use this plan in the Doop desktop app.'}
+            {active ? t('model.waitingForDesktop') : t('model.usePlanInDesktop')}
           </p>
           <a
             className="inline-flex items-center gap-[7px] py-1 text-[13px] font-semibold text-brand hover:underline"
@@ -79,6 +81,7 @@ function DesktopOnlyClaudeRow({ active }: { active: boolean }) {
 }
 
 export function LocalClaudeRow() {
+  const { t } = useI18n()
   const { data: session } = authClient.useSession()
   const userId = session?.user.id
   const { preference, native, running, progress, error: runnerError } = useLocalAgent()
@@ -151,17 +154,17 @@ export function LocalClaudeRow() {
           </span>
         </div>
         <p className="mt-1.5 text-[14px] leading-[1.55] text-ink-soft max-md:text-[13.5px]">
-          Use your Claude subscription locally.
+          {t('model.claudeDesktopLede')}
         </p>
         {connected && native?.email && (
           <dl className="mt-[14px] grid grid-cols-[auto_auto] items-center justify-start gap-x-[14px] gap-y-2 text-[13px] text-ink-soft max-md:grid-cols-1 max-md:gap-[3px]">
-            <dt>Connected as</dt>
+            <dt>{t('model.connectedAs')}</dt>
             <dd className="min-w-0">
               <code className={planAsCode}>{native.email}</code>
             </dd>
             {native.plan && (
               <>
-                <dt className="max-md:mt-2">Plan</dt>
+                <dt className="max-md:mt-2">{t('model.plan')}</dt>
                 <dd className="min-w-0">
                   <code className={planAsCode}>{native.plan.charAt(0).toUpperCase() + native.plan.slice(1)}</code>
                 </dd>
@@ -172,7 +175,7 @@ export function LocalClaudeRow() {
         <div className={actionsRow}>
           {connected ? (
             <ToggleChipGroup
-              aria-label="Claude model"
+              aria-label={t('model.claudeModel')}
               value={pinnedModel ? '' : selectedModel}
               disabled={busy || running}
               onValueChange={(model) => choose({ model })}
@@ -269,16 +272,16 @@ export function LocalClaudeRow() {
           <>
             <p className="mt-[10px] text-[13px] text-ink-faint">{selectedBlurb}</p>
             <div className="mt-[10px] flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="text-[13px] text-ink-soft">Reasoning effort</span>
+              <span className="text-[13px] text-ink-soft">{t('model.reasoningEffort')}</span>
               <Segmented
-                aria-label="Reasoning effort"
+                aria-label={t('model.reasoningEffort')}
                 value={selectedEffort ?? 'default'}
                 disabled={busy || running}
                 onValueChange={(effort) =>
                   choose({ effort: effort === 'default' ? undefined : (effort as ClaudeEffort) })
                 }
               >
-                <SegmentedItem value="default" title="Whatever your Claude Code is set to">
+                <SegmentedItem value="default" title={t('model.whateverClaudeCode')}>
                   Default
                 </SegmentedItem>
                 {CLAUDE_EFFORT_OPTIONS.map((effort) => (
@@ -290,11 +293,11 @@ export function LocalClaudeRow() {
             </div>
             <div className="mt-[10px] flex flex-wrap items-center gap-2">
               <Input
-                aria-label="Pin a model id"
+                aria-label={t('model.pinModelId')}
                 className="w-[260px] max-md:w-full"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                placeholder="Pin a model id, e.g. claude-opus-5-20260901"
+                placeholder={t('model.pinModelPlaceholder')}
                 spellCheck={false}
                 disabled={busy || running}
               />
@@ -307,7 +310,7 @@ export function LocalClaudeRow() {
             </div>
           </>
         )}
-        {!supported && <p className="mt-[10px] text-[13px] text-ink-faint">Update Doop to connect Claude.</p>}
+        {!supported && <p className="mt-[10px] text-[13px] text-ink-faint">{t('model.updateDoopClaude')}</p>}
         {supported && native?.installed && native.outdated && (
           <p className="mt-[10px] text-[13px] text-ink-faint">
             Claude Code {native.cliVersion ?? ''} at <code className={planAsCode}>{native.cliPath}</code> is older than
@@ -323,7 +326,7 @@ export function LocalClaudeRow() {
           </p>
         )}
         {active && !connected && (
-          <p className="mt-[10px] text-[13px] text-ink-faint">Waiting for a connected desktop.</p>
+          <p className="mt-[10px] text-[13px] text-ink-faint">{t('model.waitingForDesktop')}</p>
         )}
         {(running || runnerError) && (
           <Disclosure

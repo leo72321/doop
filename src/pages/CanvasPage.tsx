@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { canEditOpenCanvas, pickedSelectors, roleOf, useStore } from '../lib/store'
 import { MOD_KEY, isHideUiShortcut } from '../lib/keys'
@@ -164,7 +165,7 @@ const STARTER_HTML = `<!doctype html>
 </style>
 </head>
 <body>
-  <p>開始設計 — 編輯 HTML，或指派任務給 Agent。</p>
+  <p>開始設計 — 編輯 HTML，或指派任務給代理。</p>
 </body>
 </html>`
 
@@ -173,6 +174,7 @@ const importNoteCls = 'mt-2.5 text-[11.5px] leading-[1.4] text-ink-faint'
 const errorNoteCls = 'mt-2.5 text-[13px] text-accent-ink'
 
 export function CanvasPage({ canvasId }: { canvasId: string }) {
+  const { t } = useI18n()
   const canvas = useStore((s) => s.canvas)
   const connected = useStore((s) => s.connected)
   const presences = useStore((s) => s.presences)
@@ -404,7 +406,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
   /* ⌘. and View > Show/Hide UI: the first hide in a browser says how to undo it */
   function toggleHideUi() {
     useStore.getState().toggleUiHidden()
-    if (useStore.getState().uiHidden && !hideUiHinted()) showToast(`UI hidden · ${MOD_KEY}. to show`)
+    if (useStore.getState().uiHidden && !hideUiHinted()) showToast(t('topbar.uiHidden', { mod: MOD_KEY }))
   }
 
   /* Export lists the page's frames, with the canvas selection pre-checked */
@@ -540,13 +542,12 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
   if (canvasNotFound) {
     return (
       <AuthScreen>
-        <AuthCard title="Canvas not found" align="center">
+        <AuthCard title={t('topbar.canvasNotFound')} align="center">
           <AuthCardText>
-            &ldquo;{canvasId}&rdquo; doesn&rsquo;t match a canvas we know about. It may have been deleted, or the link
-            may be wrong.
+            {t('topbar.canvasNotFoundDesc', { id: canvasId })}
           </AuthCardText>
           <Button className="self-center" onClick={() => navigate('/')}>
-            Back to your canvases
+            {t('topbar.backToYourCanvases')}
           </Button>
         </AuthCard>
       </AuthScreen>
@@ -574,12 +575,12 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
       >
         <div className="flex min-w-0 items-center gap-2 max-xs:basis-full">
           <BarPill className="min-w-0 gap-1 pr-3 pl-1">
-            <Tooltip label="All canvases" side="bottom" align="start">
+            <Tooltip label={t('topbar.allCanvases')} side="bottom" align="start">
               <Button
                 variant="bare"
                 size="icon-sm"
                 className={barPillIconBtn}
-                aria-label="All canvases"
+                aria-label={t('topbar.allCanvases')}
                 onClick={() => navigate('/')}
               >
                 <FolderIcon className="size-3.5" />
@@ -587,17 +588,17 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
             </Tooltip>
             <CanvasName readOnly={readOnly} />
             {readOnly && (
-              <Badge tone="outline" title="Your share link lets you look around but not change the design">
-                {role === 'comment' ? 'Can comment' : 'View only'}
+              <Badge tone="outline" title={t('topbar.shareLinkReadOnly')}>
+                {role === 'comment' ? t('topbar.roleCanComment') : t('topbar.roleViewOnly')}
               </Badge>
             )}
-            <Badge className="max-md:hidden" title="Canvas id — agents use this with the MCP tools">
+            <Badge className="max-md:hidden" title={t('topbar.canvasIdMcp')}>
               {canvasId}
             </Badge>
             {connected ? (
-              <span className="ml-1 whitespace-nowrap text-ink-faint max-lg:hidden">— Auto-saved</span>
+              <span className="ml-1 whitespace-nowrap text-ink-faint max-lg:hidden">{t('topbar.autoSaved')}</span>
             ) : (
-              <span className="ml-1 whitespace-nowrap text-accent-ink">— Reconnecting…</span>
+              <span className="ml-1 whitespace-nowrap text-accent-ink">{t('topbar.reconnecting')}</span>
             )}
           </BarPill>
         </div>
@@ -609,7 +610,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               the plain avatar stack (and its follow buttons) over here */}
           <div
             className="mr-1 flex items-center min-[1181px]:hidden"
-            title={others.map((p) => p.name).join(', ') || 'Just you here'}
+            title={others.map((p) => p.name).join(', ') || t('topbar.justYouHere')}
           >
             <PresenceFace name={meFace.name} color={meFace.color} kind="user" />
             <span className="-ml-[7px] flex items-center">
@@ -623,33 +624,33 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                   variant="bare"
                   className={barPillBtn}
                   onClick={() => setShowImport(true)}
-                  title="Import a live web page as a frame"
+                  title={t('topbar.importTitle')}
                 >
                   <ImportIcon className="size-3.5" />
-                  Import
+                  {t('topbar.import')}
                 </Button>
                 <BarDivider className="mx-0.5" />
               </>
             )}
-            <Button variant="bare" className={barPillBtn} onClick={openExport} title="Export frames as a PDF">
+            <Button variant="bare" className={barPillBtn} onClick={openExport} title={t('topbar.exportTitle')}>
               <ExportIcon className="size-3.5" />
-              Export
+              {t('topbar.export')}
             </Button>
           </BarPill>
           <BarPill>
             <Button variant="bare" className={barPillBtn} onClick={() => setShowShare(true)}>
               <ShareUpIcon className="size-3.5" />
-              Share
+              {t('topbar.share')}
             </Button>
             <Tooltip
-              label={prototypeMode ? 'Leave Prototype mode' : 'Prototype mode: wire up interactions'}
+              label={prototypeMode ? t('topbar.leavePrototypeMode') : t('topbar.prototypeModeHint')}
               side="bottom"
             >
               <Button
                 variant="bare"
                 size="icon-sm"
                 className={cn(barPillIconBtn, prototypeMode && 'bg-paper-deep text-ink')}
-                aria-label="Prototype mode"
+                aria-label={t('topbar.prototypeMode')}
                 aria-pressed={prototypeMode}
                 onClick={() => useStore.getState().setPrototypeMode(!prototypeMode)}
               >
@@ -658,7 +659,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
             </Tooltip>
             <Tooltip
               label={
-                selectedId ? 'Present from this frame' : playFrom ? 'Present the prototype' : 'Add a frame to present'
+                selectedId ? t('topbar.presentFromFrame') : playFrom ? t('topbar.presentPrototypeTooltip') : t('topbar.addFrameToPresent')
               }
               side="bottom"
             >
@@ -667,7 +668,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                   variant="bare"
                   size="icon-sm"
                   className={barPillIconBtn}
-                  aria-label="Present prototype"
+                  aria-label={t('topbar.presentPrototype')}
                   disabled={!playFrom}
                   onClick={() => setPresenting(playFrom)}
                 >
@@ -679,13 +680,13 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
           {/* the bar's one black action — it opens the MCP connection modal */}
           <Button variant="primary" className={cn(barPrimaryBtn, 'shadow-ring')} onClick={openConnect}>
             <PlusIcon className="size-3.5" strokeWidth={1.4} />
-            Connect AI
+            {t('topbar.connectAi')}
           </Button>
         </div>
         <div className="ml-auto hidden items-center gap-1.5 max-md:flex max-xs:order-3">
           <div
             className="mr-1 flex items-center max-sm:hidden"
-            title={others.map((p) => p.name).join(', ') || 'Just you here'}
+            title={others.map((p) => p.name).join(', ') || t('topbar.justYouHere')}
           >
             <PresenceFace name={meFace.name} color={meFace.color} kind="user" />
             <span className="-ml-[7px] flex items-center">
@@ -694,15 +695,15 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
           </div>
           <Button variant="primary" className={cn(barPrimaryBtn, 'shadow-ring')} onClick={openConnect}>
             <PlusIcon className="size-3.5" strokeWidth={1.4} />
-            <span className="max-sm:hidden">Connect AI</span>
-            <span className="sm:hidden">AI</span>
+            <span className="max-sm:hidden">{t('topbar.connectAi')}</span>
+            <span className="sm:hidden">{t('topbar.connectAiShort')}</span>
           </Button>
-          <Tooltip label="Canvas actions" side="bottom" align="end">
+          <Tooltip label={t('topbar.canvasActions')} side="bottom" align="end">
             <Button
               variant="ghost"
               size="icon"
               className={barIconBtn}
-              aria-label="Canvas actions"
+              aria-label={t('topbar.canvasActions')}
               onClick={() => setShowMobileActions(true)}
             >
               <MoreHorizontalIcon className="size-4" />
@@ -742,8 +743,8 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                   variant="bare"
                   size="icon-sm"
                   className="mr-1 size-6 rounded-[6px] text-ink-faint"
-                  title="Hide for now"
-                  aria-label="Hide for now"
+                  title={t('topbar.hideForNow')}
+                  aria-label={t('topbar.hideForNow')}
                   onClick={() => setMutedProposal(pendingProposal.id)}
                 >
                   <XIcon className="size-3" />
@@ -754,7 +755,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               <Button
                 variant="bare"
                 className="max-w-full items-center gap-2.5 whitespace-normal rounded-[12px] bg-surface px-3.5 py-2.5 text-left font-normal shadow-pop transition-shadow hover:bg-surface hover:shadow-ring-hover sm:max-w-[320px] [&_svg]:text-ink-soft"
-                title="Open Memory"
+                title={t('topbar.openMemory')}
                 onClick={() => {
                   useStore.getState().setPanelTab('memory')
                   setShowActivity(true)
@@ -763,7 +764,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               >
                 <BrainIcon className="size-4" />
                 <span>
-                  <b className="block text-[12.5px] font-medium text-ink">Saved to Memory</b>
+                  <b className="block text-[12.5px] font-medium text-ink">{t('topbar.savedToMemory')}</b>
                   <span className="mt-[1px] block text-[12px] leading-[1.4] text-ink-soft">{decisionToast}</span>
                 </span>
               </Button>
@@ -860,9 +861,9 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               className="gap-0 rounded-t-2xl border-line bg-surface p-0 pb-[env(safe-area-inset-bottom)] shadow-pop"
             >
               <div className="border-b border-line-soft px-5 py-4 pr-14">
-                <SheetTitle className="font-display text-lg font-extrabold">Canvas actions</SheetTitle>
+                <SheetTitle className="font-display text-lg font-extrabold">{t('topbar.canvasActions')}</SheetTitle>
                 <SheetDescription className="mt-1 text-xs text-ink-soft">
-                  Layers, import, export, share, or your account settings.
+                  {t('topbar.sheetActionsDesc')}
                 </SheetDescription>
               </div>
               {/* the same glyphs as the desktop bar and islands; pages live
@@ -876,7 +877,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                     setShowMobileLayers(true)
                   }}
                 >
-                  <LayersIcon /> Layers
+                  <LayersIcon /> {t('layers.title')}
                 </Button>
                 {!readOnly && (
                   <Button
@@ -887,7 +888,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                       setShowImport(true)
                     }}
                   >
-                    <ImportIcon /> Import website
+                    <ImportIcon /> {t('topbar.importWebsite')}
                   </Button>
                 )}
                 <Button
@@ -898,14 +899,14 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
                     setShowShare(true)
                   }}
                 >
-                  <ShareIcon /> Share canvas
+                  <ShareIcon /> {t('topbar.shareCanvas')}
                 </Button>
                 <Button
                   variant="ghost"
                   className="h-11 justify-start gap-2.5 px-4 text-ink-soft"
                   onClick={() => navigate('/settings')}
                 >
-                  <GearIcon /> Settings
+                  <GearIcon /> {t('rail.settings')}
                 </Button>
               </div>
             </SheetContent>
@@ -920,7 +921,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               onOpenAutoFocus={(e) => e.preventDefault()}
               className="max-h-[calc(100svh-56px)] gap-0 rounded-t-2xl border-line bg-surface p-0 shadow-pop data-[side=bottom]:h-[min(78svh,680px)]"
             >
-              <SheetTitle className="sr-only">Layers</SheetTitle>
+              <SheetTitle className="sr-only">{t('layers.title')}</SheetTitle>
               <LayersPanel onAddFrame={addFrame} surface="inline" onClose={() => setShowMobileLayers(false)} />
             </SheetContent>
           </Sheet>
@@ -938,7 +939,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               showCloseButton={false}
               className="max-h-[calc(100svh-56px)] gap-0 rounded-t-2xl border-line bg-surface p-0 shadow-pop data-[side=bottom]:h-[min(78svh,680px)]"
             >
-              <SheetTitle className="sr-only">Frame inspector</SheetTitle>
+              <SheetTitle className="sr-only">{t('rail.inspectFrame')}</SheetTitle>
               {selectedFrame && <Inspector frame={selectedFrame} surface="inline" />}
             </SheetContent>
           </Sheet>
@@ -948,7 +949,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
               showCloseButton={false}
               className="max-h-[calc(100svh-56px)] gap-0 rounded-t-2xl border-line bg-surface p-0 shadow-pop data-[side=bottom]:h-[min(78svh,680px)]"
             >
-              <SheetTitle className="sr-only">Canvas activity</SheetTitle>
+              <SheetTitle className="sr-only">{t('rail.activity')}</SheetTitle>
               <ActivityPanel canvasId={canvasId} onClose={() => setShowActivity(false)} surface="inline" />
             </SheetContent>
           </Sheet>
@@ -969,7 +970,7 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
           onClose={() => setShowShare(false)}
           onCopied={() => {
             setShowShare(false)
-            showToast('Canvas link copied')
+            showToast(t('topbar.canvasLinkCopied'))
           }}
         />
       )}
@@ -1010,14 +1011,14 @@ export function CanvasPage({ canvasId }: { canvasId: string }) {
           onQueued={(cardCount) => {
             setShowImport(false)
             setGhInstallPass(null)
-            showToast(`${cardCount} ${cardCount === 1 ? 'card' : 'cards'} queued — Doop is on it`)
+            showToast(cardCount === 1 ? t('import.cardsQueuedSingle') : t('import.cardsQueued', { count: cardCount }))
           }}
         />
       )}
       {updateReady ? (
         <Toast>
-          doop was updated
-          <ToastAction onClick={() => location.reload()}>Reload</ToastAction>
+          {t('topbar.doopUpdated')}
+          <ToastAction onClick={() => location.reload()}>{t('topbar.reload')}</ToastAction>
         </Toast>
       ) : toast ? (
         <Toast>{toast}</Toast>
@@ -1088,7 +1089,7 @@ function ImportModal({
       posthog.capture('page_imported')
       onDone([frame.id], 0)
     } catch (e) {
-      setError(errorMessage(e, 'import failed'))
+      setError(errorMessage(e, t('import.importFailed')))
       setBusy(null)
     }
   }
@@ -1104,7 +1105,7 @@ function ImportModal({
       posthog.capture('site_pages_discovered', { page_count: found.pages.length, truncated: found.truncated })
       setBusy(null)
     } catch (e) {
-      setError(errorMessage(e, 'page discovery failed'))
+      setError(errorMessage(e, t('import.pageDiscoveryFailed')))
       setBusy(null)
     }
   }
@@ -1132,7 +1133,7 @@ function ImportModal({
         result.failures.length,
       )
     } catch (e) {
-      setError(errorMessage(e, 'website import failed'))
+      setError(errorMessage(e, t('import.websiteImportFailed')))
       setBusy(null)
     }
   }
@@ -1196,7 +1197,7 @@ function ImportModal({
         onClose()
         return
       }
-      setError(errorMessage(e, 'repository import failed'))
+      setError(errorMessage(e, t('import.repoImportFailed')))
       setBusy(null)
     }
   }
@@ -1222,8 +1223,8 @@ function ImportModal({
           <>
             <div className="flex flex-col items-start justify-between gap-2.5 sm:flex-row sm:gap-6">
               <div className="flex flex-col gap-[5px]">
-                <ModalEyebrow>Review before import</ModalEyebrow>
-                <ModalTitle>Import the design system</ModalTitle>
+                <ModalEyebrow>{t('import.reviewBeforeImport')}</ModalEyebrow>
+                <ModalTitle>{t('import.designSystemTitle')}</ModalTitle>
               </div>
               <Badge shape="pill">
                 {repoReview.connection.repo}@{repoReview.connection.branch}
@@ -1239,8 +1240,8 @@ function ImportModal({
               checked={extractSystem}
               disabled={!!busy}
               onChange={setExtractSystem}
-              title="Extract the design system into a style guide"
-              description="Palette, type and spacing from the repo's theme — pinned to the canvas, followed by every agent."
+              title={t('import.extractDesignSystemTitle')}
+              description={t('import.extractSystemDesc')}
             />
             <SelectionBar
               className="mt-4"
@@ -1252,10 +1253,10 @@ function ImportModal({
                     disabled={!!busy}
                     onClick={() => setRepoSelected(new Set(visibleScreens.map(screenKey)))}
                   >
-                    Select all
+                    {t('import.selectAll')}
                   </SelectionBarAction>
                   <SelectionBarAction disabled={!!busy} onClick={() => setRepoSelected(new Set())}>
-                    Clear
+                    {t('import.clear')}
                   </SelectionBarAction>
                 </>
               }
@@ -1266,7 +1267,7 @@ function ImportModal({
                 busy && 'opacity-[0.58]',
               )}
               role="group"
-              aria-label="Screens to import"
+              aria-label={t('import.screensToImport')}
             >
               {visibleScreens.map((screen, index) => (
                 <label
@@ -1308,15 +1309,15 @@ function ImportModal({
                 disabled={!!busy}
                 onClick={() => setShowPages((v) => !v)}
               >
-                {showPages ? 'hide pages' : `show ${pageCount} page${pageCount === 1 ? '' : 's'} (optional)`}
+                {showPages ? t('import.hidePages') : t('import.showPages', { count: pageCount, pages: pageCount === 1 ? t('import.page') : t('import.pages') })}
               </Button>
             )}
             {repoReview.manifest.truncated && (
-              <p className={importNoteCls}>The repository listing was cut short — very large repos show a subset.</p>
+              <p className={importNoteCls}>{t('import.repoTruncated')}</p>
             )}
             {busy === 'importing' && (
               <p className={cn(importNoteCls, 'text-accent-ink')}>
-                Doop is importing — the style guide and sketches fill in on the canvas…
+                {t('import.repoImporting')}
               </p>
             )}
             {error && <p className={errorNoteCls}>{error}</p>}
@@ -1330,7 +1331,7 @@ function ImportModal({
                 }}
               >
                 <ArrowLeftIcon size={14} />
-                Back
+                {t('import.back')}
               </Button>
               <Button
                 variant="primary"
@@ -1338,24 +1339,16 @@ function ImportModal({
                 onClick={importRepoScreens}
               >
                 {busy === 'importing'
-                  ? 'Importing…'
-                  : [
-                      extractSystem ? 'design system' : '',
-                      repoSelected.size
-                        ? `${repoSelected.size} ${
-                            repoSelected.size === 1
-                              ? 'component'
-                              : visibleScreens
-                                    .filter((s) => repoSelected.has(screenKey(s)))
-                                    .every((s) => s.kind === 'component' || s.kind === 'story')
-                                ? 'components'
-                                : 'screens'
-                          }`
-                        : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' + ')
-                      .replace(/^./, (c) => 'Import ' + c)}
+                  ? t('import.importing')
+                  : extractSystem && !repoSelected.size
+                    ? t('import.importDesignSystem')
+                    : !extractSystem && repoSelected.size
+                      ? (visibleScreens.filter((s) => repoSelected.has(screenKey(s))).every((s) => s.kind === 'component' || s.kind === 'story')
+                          ? t('import.importComponents', { count: repoSelected.size })
+                          : t('import.importScreens', { count: repoSelected.size }))
+                      : (visibleScreens.filter((s) => repoSelected.has(screenKey(s))).every((s) => s.kind === 'component' || s.kind === 'story')
+                          ? t('import.importSystemAndComponents', { count: repoSelected.size })
+                          : t('import.importSystemAndScreens', { count: repoSelected.size }))}
               </Button>
             </ModalActions>
           </>
@@ -1365,11 +1358,11 @@ function ImportModal({
               <SourcePicker onPick={setSource} sources={importSources()} />
             ) : source === 'website' ? (
               <>
-                <ImportStepHeader icon={<WebIcon className="size-[22px] text-ink" />} title="Import a website" />
+                <ImportStepHeader icon={<WebIcon className="size-[22px] text-ink" />} title={t('import.websiteTitle')} />
                 <ModalLede>
-                  Bring in one page, or discover a whole site and choose the pages you want before anything is added.
+                  {t('import.websiteLede')}
                 </ModalLede>
-                <Field className="mt-[22px]" label="Website URL" labelVariant="form" htmlFor="import-url">
+                <Field className="mt-[22px]" label={t('import.websiteUrl')} labelVariant="form" htmlFor="import-url">
                   <Input
                     id="import-url"
                     variant="well"
@@ -1400,13 +1393,13 @@ function ImportModal({
                   }}
                   title={
                     <>
-                      Import the entire website{' '}
+                      {t('import.entireWebsite')}{' '}
                       <em className="ml-[7px] rounded-full bg-paper-deep px-1.5 py-px text-micro font-medium not-italic text-ink-faint">
-                        Optional
+                        {t('import.optional')}
                       </em>
                     </>
                   }
-                  description="Find public pages on the same site, then review the list."
+                  description={t('import.entireWebsiteDesc')}
                 />
                 {error && <p className={errorNoteCls}>{error}</p>}
                 <ImportStepFooter
@@ -1445,14 +1438,13 @@ function ImportModal({
           <>
             <div className="flex flex-col items-start justify-between gap-2.5 sm:flex-row sm:gap-6">
               <div className="flex flex-col gap-[5px]">
-                <ModalEyebrow>Review before import</ModalEyebrow>
-                <ModalTitle>Choose pages</ModalTitle>
+                <ModalEyebrow>{t('import.reviewBeforeImport')}</ModalEyebrow>
+                <ModalTitle>{t('import.choosePages')}</ModalTitle>
               </div>
               <Badge shape="pill">{new URL(discovery.siteUrl).hostname}</Badge>
             </div>
             <ModalLede>
-              {discovery.pages.length} {discovery.pages.length === 1 ? 'page' : 'pages'} found. Everything is selected
-              by default; uncheck anything you don’t need.
+              {t('import.pagesFoundDesc', { count: discovery.pages.length, pages: discovery.pages.length === 1 ? t('import.page') : t('import.pages') })}
             </ModalLede>
             <SelectionBar
               className="mt-5"
@@ -1464,10 +1456,10 @@ function ImportModal({
                     disabled={!!busy}
                     onClick={() => setSelected(new Set(discovery.pages.map((p) => p.url)))}
                   >
-                    Select all
+                    {t('import.selectAll')}
                   </SelectionBarAction>
                   <SelectionBarAction disabled={!!busy} onClick={() => setSelected(new Set())}>
-                    Clear
+                    {t('import.clear')}
                   </SelectionBarAction>
                 </>
               }
@@ -1478,7 +1470,7 @@ function ImportModal({
                 busy && 'opacity-[0.58]',
               )}
               role="group"
-              aria-label="Pages to import"
+              aria-label={t('import.pagesToImport')}
             >
               {discovery.pages.map((page, index) => {
                 const pageUrl = new URL(page.url)
@@ -1513,11 +1505,11 @@ function ImportModal({
               })}
             </div>
             {discovery.truncated && (
-              <p className={importNoteCls}>Showing the first 100 pages found. Narrow the starting URL if needed.</p>
+              <p className={importNoteCls}>{t('import.showingFirst100')}</p>
             )}
             {busy === 'importing' && (
               <p className={cn(importNoteCls, 'text-accent-ink')}>
-                Capturing {selectedCount} pages — larger sites can take a few minutes.
+                {t('import.capturingPages', { count: selectedCount })}
               </p>
             )}
             {error && <p className={errorNoteCls}>{error}</p>}
@@ -1531,12 +1523,12 @@ function ImportModal({
                 }}
               >
                 <ArrowLeftIcon size={14} />
-                Back
+                {t('import.back')}
               </Button>
               <Button variant="primary" disabled={!!busy || !selectedCount} onClick={importSelected}>
                 {busy === 'importing'
-                  ? `Importing ${selectedCount}…`
-                  : `Import ${selectedCount} ${selectedCount === 1 ? 'page' : 'pages'}`}
+                  ? t('import.importingPages', { count: selectedCount })
+                  : selectedCount === 1 ? t('import.importPagesSingle') : t('import.importPages', { count: selectedCount })}
               </Button>
             </ModalActions>
           </>
@@ -1549,6 +1541,7 @@ function ImportModal({
 /** Your display name, the identity on your cursor and in the feed. It lives on
  *  the account, so saving it updates the account and rejoins the canvas. */
 function RenameSelfModal({ current, onClose }: { current: string; onClose: () => void }) {
+  const { t } = useI18n()
   const [draft, setDraft] = useState(current)
   const [busy, setBusy] = useState(false)
   const clean = draft.trim()
@@ -1571,9 +1564,9 @@ function RenameSelfModal({ current, onClose }: { current: string; onClose: () =>
   return (
     <Modal size="sm" onClose={onClose}>
       <>
-        <ModalTitle>Your display name</ModalTitle>
-        <ModalLede>Shown on your cursor, in the activity feed, and on everything you leave for an agent.</ModalLede>
-        <Field className="mt-5" label="Name" labelVariant="form" htmlFor="display-name">
+        <ModalTitle>{t('import.renameSelfTitle')}</ModalTitle>
+        <ModalLede>{t('import.renameSelfLede')}</ModalLede>
+        <Field className="mt-5" label={t('import.displayName')} labelVariant="form" htmlFor="display-name">
           <Input
             id="display-name"
             autoFocus
@@ -1586,7 +1579,7 @@ function RenameSelfModal({ current, onClose }: { current: string; onClose: () =>
         </Field>
         <ModalActions>
           <Button variant="ghost" disabled={busy} onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" disabled={busy || !clean || clean === current} onClick={save}>
             {busy ? 'Saving…' : 'Save name'}
@@ -1602,6 +1595,7 @@ function RenameSelfModal({ current, onClose }: { current: string; onClose: () =>
    server-side importer can't go. */
 
 function SyncKeysSection({ canvasId, onBack }: { canvasId: string; onBack: () => void }) {
+  const { t } = useI18n()
   const [keys, setKeys] = useState<SyncKeyInfo[] | null>(null)
   const [name, setAppName] = useState('')
   const [busy, setBusy] = useState(false)
@@ -1652,32 +1646,31 @@ function SyncKeysSection({ canvasId, onBack }: { canvasId: string; onBack: () =>
   if (forbidden) {
     return (
       <>
-        <ImportStepHeader icon={<RadioTowerIcon className="size-[22px] text-ink" />} title="Sync a live app" />
-        <ModalLede>Sync keys are for canvas members — ask the owner for durable access.</ModalLede>
+        <ImportStepHeader icon={<RadioTowerIcon className="size-[22px] text-ink" />} title={t('import.syncLiveAppTitle')} />
+        <ModalLede>{t('import.syncKeysForbidden')}</ModalLede>
         <ImportStepFooter onBack={onBack} />
       </>
     )
   }
   return (
     <>
-      <ImportStepHeader icon={<RadioTowerIcon className="size-[22px] text-ink" />} title="Sync a live app" />
+      <ImportStepHeader icon={<RadioTowerIcon className="size-[22px] text-ink" />} title={t('import.syncLiveAppTitle')} />
       <ModalLede>
-        For apps a crawler cannot reach: behind a login, a VPN, or on localhost. Paste one script tag and each screen
-        people visit lands here as a frame, imported once.
+        {t('import.syncLiveAppLede')}
       </ModalLede>
       {(keys ?? []).map((k) => (
         <div key={k.id} className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2 text-[13px]">
             <b className="font-semibold">{k.name}</b>
             <Note className="mr-auto">
-              {k.frames ? `${k.frames} screen${k.frames === 1 ? '' : 's'}` : k.lastUsedAt ? 'synced' : 'never synced'}
+              {k.frames ? (k.frames === 1 ? t('import.screensCountSingle') : t('import.screensCount', { count: k.frames })) : k.lastUsedAt ? t('import.synced') : t('import.neverSynced')}
             </Note>
             <Button
               variant="bare"
               size="icon-sm"
               className="-mr-1.5 hover:bg-accent-ink/10 hover:text-accent-ink"
-              title="Revoke this key"
-              aria-label="Revoke this key"
+              title={t('import.revokeKey')}
+              aria-label={t('import.revokeKey')}
               onClick={() => revoke(k.id)}
             >
               <XIcon size={14} />
@@ -1697,11 +1690,11 @@ function SyncKeysSection({ canvasId, onBack }: { canvasId: string; onBack: () =>
               onClick={() => copySnippet(k)}
             >
               {copiedId === k.id ? (
-                'Copied!'
+                t('import.copiedSnippet')
               ) : (
                 <>
                   <CopyIcon className="size-3.5" />
-                  Copy
+                  {t('import.copySnippet')}
                 </>
               )}
             </Button>
@@ -1709,12 +1702,12 @@ function SyncKeysSection({ canvasId, onBack }: { canvasId: string; onBack: () =>
         </div>
       ))}
       <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row">
-        <Field className="flex-1" label="App name" labelVariant="form" htmlFor="sync-app-name">
+        <Field className="flex-1" label={t('import.appName')} labelVariant="form" htmlFor="sync-app-name">
           <Input
             id="sync-app-name"
             variant="well"
             inputSize="lg"
-            placeholder="Admin dashboard"
+            placeholder={t('import.appNamePlaceholder')}
             value={name}
             disabled={busy}
             onChange={(e) => setAppName(e.target.value)}
@@ -1727,14 +1720,14 @@ function SyncKeysSection({ canvasId, onBack }: { canvasId: string; onBack: () =>
           disabled={busy || !name.trim()}
           onClick={create}
         >
-          Create key
+          {t('import.createKey')}
         </Button>
       </div>
       <ol className="mt-3 flex flex-col divide-y divide-line-soft rounded-[10px] border border-line">
         {[
-          ['Get a key for this canvas', 'The key only writes here. Revoke it from this screen at any time.'],
-          ['Paste the script tag', 'One script tag in your app’s layout. Nothing else to install.'],
-          ['Browse the app', 'Every new screen someone visits lands as a frame. Delete a frame to re-import it fresh.'],
+          [t('import.step1Title'), t('import.step1Detail')],
+          [t('import.step2Title'), t('import.step2Detail')],
+          [t('import.step3Title'), t('import.step3Detail')],
         ].map(([title, detail], i) => (
           <li key={title} className="flex gap-3.5 px-3.5 py-3">
             <span className="font-mono text-[11px] leading-[1.6] text-ink-faint">0{i + 1}</span>
@@ -1772,6 +1765,7 @@ function GithubSection({
   onReview: (connection: GithubConnectionInfo, manifest: RepoManifest) => void
   onBack: () => void
 }) {
+  const { t } = useI18n()
   const [connections, setConnections] = useState<GithubConnectionInfo[] | null>(null)
   const [appEnabled, setAppEnabled] = useState(false)
   const [showTokenForm, setShowTokenForm] = useState(false)
@@ -1819,7 +1813,7 @@ function GithubSection({
       posthog.capture('github_app_install_started')
       location.href = url
     } catch (e) {
-      failed(e, 'could not start the GitHub install')
+      failed(e, t('import.couldNotStartGithub'))
     }
   }
 
@@ -1834,7 +1828,7 @@ function GithubSection({
       setBusy(null)
       posthog.capture('github_repo_connected', { via: 'app' })
     } catch (e) {
-      failed(e, 'could not connect the repository')
+      failed(e, t('import.couldNotConnectRepo'))
     }
   }
 
@@ -1853,7 +1847,7 @@ function GithubSection({
       setBusy(null)
       posthog.capture('github_repo_connected', { via: 'token' })
     } catch (e) {
-      failed(e, 'could not connect the repository')
+      failed(e, t('import.couldNotConnectRepo'))
     }
   }
 
@@ -1882,15 +1876,15 @@ function GithubSection({
   if (forbidden) {
     return (
       <>
-        <ImportStepHeader icon={<GithubIcon width={22} height={22} />} title="Connect a GitHub repo" />
-        <ModalLede>Repo connections are for canvas members — ask the owner for durable access.</ModalLede>
+        <ImportStepHeader icon={<GithubIcon width={22} height={22} />} title={t('import.githubTitle')} />
+        <ModalLede>{t('import.githubForbidden')}</ModalLede>
         <ImportStepFooter onBack={onBack} />
       </>
     )
   }
   return (
     <>
-      <ImportStepHeader icon={<GithubIcon width={22} height={22} />} title="Connect a GitHub repo" />
+      <ImportStepHeader icon={<GithubIcon width={22} height={22} />} title={t('import.githubTitle')} />
       <ModalLede>
         Doop reads the repo&rsquo;s routing conventions and lists its screens for review. Nothing lands until you pick.
       </ModalLede>
@@ -1903,17 +1897,17 @@ function GithubSection({
                 <span className="font-normal text-ink-faint">@{conn.branch}</span>
               </b>
               <Note className="mr-auto shrink-0">
-                {conn.frames ? `${conn.frames} screen${conn.frames === 1 ? '' : 's'}` : 'nothing imported yet'}
+                {conn.frames ? (conn.frames === 1 ? t('import.screensCountSingle') : t('import.screensCount', { count: conn.frames })) : t('import.githubNothingImported')}
               </Note>
               <Button size="sm" className="px-2.5 text-xs" disabled={!!busy} onClick={() => analyze(conn)}>
-                {busy === conn.id ? 'Analyzing…' : 'Analyze'}
+                {busy === conn.id ? t('import.githubAnalyzing') : t('import.githubAnalyze')}
               </Button>
               <Button
                 variant="bare"
                 size="icon-sm"
                 className="-mr-1.5 hover:bg-accent-ink/10 hover:text-accent-ink"
-                title="Disconnect this repository"
-                aria-label="Disconnect this repository"
+                title={t('import.githubDisconnect')}
+                aria-label={t('import.githubDisconnect')}
                 onClick={() => disconnect(conn.id)}
               >
                 <XIcon size={14} />
@@ -1923,13 +1917,13 @@ function GithubSection({
         ))}
         {pickerRepos && (
           <div className="flex flex-col gap-1.5 rounded-[11px] border border-line bg-paper p-2.5">
-            <b className="text-[12px] text-ink-soft">Pick a repository to connect to this canvas</b>
+            <b className="text-[12px] text-ink-soft">{t('import.githubPickerTitle')}</b>
             {pickerRepos.map((r) => (
               <div key={r.fullName} className="flex items-center gap-2 text-[13px]">
                 <GithubIcon width={13} height={13} className="shrink-0 text-ink-faint" />
                 <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[12px]">
                   {r.fullName}
-                  {r.private && <span className="ml-1.5 text-[10px] text-ink-faint">private</span>}
+                  {r.private && <span className="ml-1.5 text-[10px] text-ink-faint">{t('import.private')}</span>}
                 </span>
                 <Button
                   size="sm"
@@ -1937,16 +1931,16 @@ function GithubSection({
                   disabled={!!busy}
                   onClick={() => connectInstalledRepo(r.fullName)}
                 >
-                  {busy === 'connecting' ? 'Connecting…' : 'Connect'}
+                  {busy === 'connecting' ? t('import.githubConnecting') : t('model.connect')}
                 </Button>
               </div>
             ))}
-            {!pickerRepos.length && <Note>All installed repositories are connected.</Note>}
+            {!pickerRepos.length && <Note>{t('import.githubAllConnected')}</Note>}
           </div>
         )}
         {appEnabled && !pickerRepos && (
           <Button variant="primary" className="justify-center self-start" disabled={!!busy} onClick={startInstall}>
-            {busy === 'connecting' ? 'Opening GitHub…' : 'Connect GitHub'}
+            {busy === 'connecting' ? t('import.githubOpening') : t('import.githubConnectBtn')}
           </Button>
         )}
         {appEnabled && !showTokenForm && (
@@ -1965,7 +1959,7 @@ function GithubSection({
               <Input
                 variant="well"
                 className="flex-1 font-mono text-[12px]"
-                placeholder="owner/repository"
+                placeholder={t('import.githubRepoPlaceholder')}
                 value={repo}
                 disabled={!!busy}
                 onChange={(e) => {
@@ -1977,7 +1971,7 @@ function GithubSection({
                 variant="well"
                 className="flex-1 font-mono text-[12px]"
                 type="password"
-                placeholder="Fine-grained token (github_pat_…)"
+                placeholder={t('import.githubTokenPlaceholder')}
                 value={token}
                 disabled={!!busy}
                 onChange={(e) => {
@@ -1993,7 +1987,7 @@ function GithubSection({
               disabled={!!busy || !repo.trim() || !token.trim()}
               onClick={connectRepo}
             >
-              {busy === 'connecting' ? 'Connecting…' : 'Connect'}
+              {busy === 'connecting' ? t('import.githubConnecting') : t('model.connect')}
             </Button>
           </div>
         )}
@@ -2002,8 +1996,8 @@ function GithubSection({
       <ImportStepFooter
         note={
           appEnabled
-            ? 'Access is scoped to the repos you pick and revocable on GitHub.'
-            : 'A fine-grained, read-only token — it never leaves the server.'
+            ? t('import.githubNoteApp')
+            : t('import.githubNoteToken')
         }
         onBack={onBack}
         backDisabled={!!busy}

@@ -332,18 +332,18 @@ const DISPLAYS: { value: string; label: string }[] = [
 const POSITIONS = ['static', 'relative', 'absolute', 'fixed', 'sticky']
 const WEIGHTS = ['100', '200', '300', '400', '500', '600', '700', '800', '900']
 const LAYER_ALIGNS = [
-  { axis: 'x', edge: 'start', label: 'Align layer left', Icon: AlignStartVerticalIcon },
-  { axis: 'x', edge: 'center', label: 'Center layer horizontally', Icon: AlignCenterVerticalIcon },
-  { axis: 'x', edge: 'end', label: 'Align layer right', Icon: AlignEndVerticalIcon },
-  { axis: 'y', edge: 'start', label: 'Align layer top', Icon: AlignStartHorizontalIcon },
-  { axis: 'y', edge: 'center', label: 'Center layer vertically', Icon: AlignCenterHorizontalIcon },
-  { axis: 'y', edge: 'end', label: 'Align layer bottom', Icon: AlignEndHorizontalIcon },
+  { axis: 'x', edge: 'start', labelKey: 'element.alignLeft', Icon: AlignStartVerticalIcon },
+  { axis: 'x', edge: 'center', labelKey: 'element.alignCenter', Icon: AlignCenterVerticalIcon },
+  { axis: 'x', edge: 'end', labelKey: 'element.alignRight', Icon: AlignEndVerticalIcon },
+  { axis: 'y', edge: 'start', labelKey: 'element.alignTop', Icon: AlignStartHorizontalIcon },
+  { axis: 'y', edge: 'center', labelKey: 'element.alignMiddle', Icon: AlignCenterHorizontalIcon },
+  { axis: 'y', edge: 'end', labelKey: 'element.alignBottom', Icon: AlignEndHorizontalIcon },
 ] as const
 const ALIGNS = [
-  { value: 'left', label: 'Align left', Icon: AlignLeftIcon },
-  { value: 'center', label: 'Align center', Icon: AlignCenterIcon },
-  { value: 'right', label: 'Align right', Icon: AlignRightIcon },
-  { value: 'justify', label: 'Justify', Icon: AlignJustifyIcon },
+  { value: 'left', labelKey: 'element.alignLeft', Icon: AlignLeftIcon },
+  { value: 'center', labelKey: 'element.alignCenter', Icon: AlignCenterIcon },
+  { value: 'right', labelKey: 'element.alignRight', Icon: AlignRightIcon },
+  { value: 'justify', labelKey: 'element.alignJustify', Icon: AlignJustifyIcon },
 ]
 const SYSTEM_FONTS = [
   { value: 'system-ui, sans-serif', label: 'System UI' },
@@ -496,16 +496,16 @@ function DesignTab({
   }
   return (
     <>
-      <PropertySection title="Alignment">
-        <div className="flex gap-1" role="group" aria-label="Layer alignment within parent">
-          {LAYER_ALIGNS.map(({ axis, edge, label, Icon }) => (
+      <PropertySection title={t('element.alignment')}>
+        <div className="flex gap-1" role="group" aria-label={t('element.layerAlignmentWithinParent')}>
+          {LAYER_ALIGNS.map(({ axis, edge, labelKey, Icon }) => (
             <Button
-              key={label}
+              key={labelKey}
               variant="bare"
               size="icon-sm"
               className="h-[26px] min-w-0 flex-1 rounded-[7px] bg-sub text-ink-soft hover:bg-paper-deep"
-              aria-label={label}
-              title={`${label} within parent`}
+              aria-label={t(labelKey as any)}
+              title={`${t(labelKey as any)}`}
               disabled={!info.geometry.canAlign}
               onClick={() => editGeometry({ kind: 'align', axis, edge })}
             >
@@ -514,10 +514,10 @@ function DesignTab({
           ))}
         </div>
       </PropertySection>
-      <PropertySection title="Position">
-        <div className="grid grid-cols-2 gap-1.5" title="Rendered position relative to parent, in frame pixels">
+      <PropertySection title={t('element.position')}>
+        <div className="grid grid-cols-2 gap-1.5" title={t('element.positionTooltip')}>
           <NumberField
-            label="X position"
+            label={t('element.xPosition')}
             min={-Infinity}
             prefix="X"
             value={info.geometry.x}
@@ -526,7 +526,7 @@ function DesignTab({
             onCommit={(value) => editGeometry({ kind: 'position', axis: 'x', value })}
           />
           <NumberField
-            label="Y position"
+            label={t('element.yPosition')}
             min={-Infinity}
             prefix="Y"
             value={info.geometry.y}
@@ -537,7 +537,7 @@ function DesignTab({
         </div>
         <div className="mt-1.5 grid grid-cols-2 gap-1.5">
           <NumberField
-            label="Rotation"
+            label={t('element.rotation')}
             min={-Infinity}
             prefix={<CircleDashedIcon size="rail" />}
             value={info.geometry.rotation}
@@ -548,7 +548,7 @@ function DesignTab({
           <div className="grid grid-cols-2 gap-1.5">
             {(['x', 'y'] as const).map((axis) => {
               const Icon = axis === 'x' ? FlipHorizontal2Icon : FlipVertical2Icon
-              const label = axis === 'x' ? 'Flip horizontally' : 'Flip vertically'
+              const label = axis === 'x' ? t('element.flipH') : t('element.flipV')
               const pressed = (axis === 'x' ? info.geometry.scaleX : info.geometry.scaleY) < 0
               return (
                 <Button
@@ -571,15 +571,15 @@ function DesignTab({
             })}
           </div>
         </div>
-        <PropertyRow label="Type">
+        <PropertyRow label={t('element.type')}>
           <SelectField
-            label="Position type"
+            label={t('element.positionType')}
             value={info.position}
             options={POSITIONS.map((p) => ({ value: p, label: p }))}
             onChange={(v) => apply({ position: v })}
           />
         </PropertyRow>
-        <PropertyRow label="Order">
+        <PropertyRow label={t('element.order')}>
           <StaticField>
             {info.index}
             <FieldUnit>
@@ -590,7 +590,7 @@ function DesignTab({
         </PropertyRow>
       </PropertySection>
       <PropertySection
-        title="Layout"
+        title={t('element.layout')}
         action={
           <Tooltip
             label={
@@ -609,7 +609,7 @@ function DesignTab({
                   'size-5 rounded-tag',
                   ratio !== null ? 'bg-ink text-paper hover:bg-ink/85 hover:text-paper' : 'text-ink-faint',
                 )}
-                aria-label="Link width and height"
+                aria-label={t('element.linkDimensions')}
                 aria-pressed={ratio !== null}
                 disabled={ratio === null && !canLink}
                 onClick={toggleRatio}
@@ -624,14 +624,14 @@ function DesignTab({
           {(['width', 'height'] as const).map((axis) => (
             <div key={axis} className="flex min-w-0 flex-col gap-1">
               <NumberField
-                label={axis === 'width' ? 'Width' : 'Height'}
+                label={axis === 'width' ? t('element.width') : t('element.height')}
                 prefix={axis === 'width' ? 'W' : 'H'}
                 value={info[axis]}
                 unit="px"
                 onCommit={(v) => setSize(axis, 'fixed', v)}
               />
               <SelectField
-                label={`${axis === 'width' ? 'Width' : 'Height'} sizing`}
+                label={axis === 'width' ? t('element.widthSizing') : t('element.heightSizing')}
                 value={modeFor(axis)}
                 options={SIZE_MODES}
                 onChange={(v) => setSize(axis, v)}
@@ -639,17 +639,17 @@ function DesignTab({
             </div>
           ))}
         </div>
-        <PropertyRow label="Min width">
+        <PropertyRow label={t('element.minWidth')}>
           <LengthField
-            label="Minimum width"
+            label={t('element.minWidthLabel')}
             value={info.inline['min-width'] ?? (info.minWidth === '0px' ? '' : info.minWidth)}
-            placeholder="auto"
+            placeholder={t('element.auto')}
             onCommit={(v) => apply({ 'min-width': lengthValue(v) })}
           />
         </PropertyRow>
-        <PropertyRow label="Display">
+        <PropertyRow label={t('element.display')}>
           <SelectField
-            label="Display"
+            label={t('element.display')}
             value={displayValue(info)}
             options={DISPLAYS}
             onChange={(v) => apply({ display: v })}
@@ -658,15 +658,15 @@ function DesignTab({
         {!isFlex && (
           <>
             {info.display.includes('grid') && (
-              <PropertyRow label="Gap">
+              <PropertyRow label={t('element.gap')}>
                 <NumberField
-                  label="Row gap"
+                  label={t('element.rowGap')}
                   value={info.rowGap ?? 0}
                   unit="px"
                   onCommit={(v) => apply({ 'row-gap': `${Math.max(0, v)}px` })}
                 />
                 <NumberField
-                  label="Column gap"
+                  label={t('element.columnGap')}
                   value={info.columnGap ?? 0}
                   unit="px"
                   onCommit={(v) => apply({ 'column-gap': `${Math.max(0, v)}px` })}
@@ -679,14 +679,14 @@ function DesignTab({
       </PropertySection>
       {isFlex && <FlexLayoutControls info={info} apply={apply} />}
       <PropertySection
-        title="Appearance"
+        title={t('element.appearance')}
         action={
           <Button
             variant="bare"
             size="icon-sm"
             className="size-5 rounded-tag text-ink-faint"
-            aria-label={visible ? 'Hide element' : 'Show element'}
-            title={visible ? 'Hide element' : 'Show element'}
+            aria-label={visible ? t('element.hideElement') : t('element.showElement')}
+            title={visible ? t('element.hideElement') : t('element.showElement')}
             aria-pressed={!visible}
             onClick={() => apply({ visibility: visible ? 'hidden' : 'visible' })}
           >
@@ -696,7 +696,7 @@ function DesignTab({
       >
         <div className="grid grid-cols-2 gap-1.5">
           <NumberField
-            label="Element opacity"
+            label={t('element.opacity')}
             max={100}
             prefix={<DropletIcon size="rail" />}
             value={info.opacity === null ? null : Math.round(info.opacity * 100)}
@@ -704,7 +704,7 @@ function DesignTab({
             onCommit={(v) => apply({ opacity: String(Math.min(100, Math.max(0, v)) / 100) })}
           />
           <NumberField
-            label="Corner radius"
+            label={t('element.cornerRadius')}
             prefix={<RadiusIcon size="rail" />}
             value={info.borderRadius}
             unit="px"
@@ -712,17 +712,17 @@ function DesignTab({
           />
         </div>
         <label className="mt-2 flex h-5 cursor-pointer items-center justify-between text-[11.5px] text-ink-soft">
-          Clip content
+          {t('element.clipContent')}
           <Switch
             size="sm"
-            aria-label="Clip content"
+            aria-label={t('element.clipContent')}
             className="data-[state=checked]:bg-ink"
             checked={info.clipsContent}
             onCheckedChange={(on) => apply({ overflow: on ? 'hidden' : 'visible' })}
           />
         </label>
       </PropertySection>
-      <PropertySection title="Fill">
+      <PropertySection title={t('element.fill')}>
         {info.image && (
           <ImageFill
             key={`${frame.id}:${selector}`}
@@ -734,7 +734,7 @@ function DesignTab({
         )}
         <div className="grid grid-cols-[minmax(0,1fr)_64px] gap-1.5">
           <ColorField
-            label="Fill color"
+            label={t('element.fillColor')}
             value={fillAlpha === 0 && fill === '#000000' ? null : fill}
             onCommit={(v) =>
               apply({
@@ -745,7 +745,7 @@ function DesignTab({
             }
           />
           <NumberField
-            label="Fill opacity"
+            label={t('element.fillOpacity')}
             max={100}
             value={Math.round(fillAlpha * 100)}
             unit="%"
@@ -753,17 +753,17 @@ function DesignTab({
           />
         </div>
       </PropertySection>
-      <PropertySection title="Stroke">
+      <PropertySection title={t('element.stroke')}>
         <div className="grid grid-cols-[minmax(0,1fr)_64px] gap-1.5">
           <ColorField
-            label="Border color"
+            label={t('element.borderColor')}
             value={borderColor}
             onCommit={(v) =>
               apply({ 'border-color': v, ...(v && info.borderStyle === 'none' ? { 'border-style': 'solid' } : {}) })
             }
           />
           <NumberField
-            label="Border width"
+            label={t('element.borderWidth')}
             value={border.width}
             unit="px"
             onCommit={(v) =>
@@ -777,25 +777,25 @@ function DesignTab({
         {border.sides && <p className="mt-1 text-[10.5px] text-ink-faint">Sides: {border.sides}</p>}
       </PropertySection>
       {info.hasText && (
-        <PropertySection title="Text">
-          <PropertyRow label="Font">
+        <PropertySection title={t('element.text')}>
+          <PropertyRow label={t('element.font')}>
             <SelectField
-              label="Font family"
+              label={t('element.fontFamily')}
               value={info.fontFamily}
               options={fontOptions(info)}
               onChange={(v) => apply({ 'font-family': v })}
             />
           </PropertyRow>
-          <PropertyRow label="Size">
+          <PropertyRow label={t('element.size')}>
             <NumberField
-              label="Font size"
+              label={t('element.fontSize')}
               value={info.fontSize}
               unit="px"
               onCommit={(v) => apply({ 'font-size': `${v}px` })}
             />
             <SelectField
               className="flex-[0_0_66px]"
-              label="Font weight"
+              label={t('element.fontWeight')}
               value={info.fontWeight}
               options={[...new Set([...WEIGHTS, info.fontWeight])]
                 .sort((a, b) => Number(a) - Number(b))
@@ -803,22 +803,22 @@ function DesignTab({
               onChange={(v) => apply({ 'font-weight': v })}
             />
           </PropertyRow>
-          <PropertyRow label="Color">
+          <PropertyRow label={t('element.color')}>
             <ColorField value={rgbToHex(info.color)} onCommit={(v) => apply({ color: v })} />
           </PropertyRow>
-          <PropertyRow label="Align">
+          <PropertyRow label={t('element.align')}>
             <Segmented
-              aria-label="Text alignment"
+              aria-label={t('element.textAlign')}
               className="w-full gap-1 rounded-none bg-transparent p-0"
               value={textAlign}
               onValueChange={(v) => apply({ 'text-align': v })}
             >
-              {ALIGNS.map(({ value, label, Icon }) => (
+              {ALIGNS.map(({ value, labelKey, Icon }) => (
                 <SegmentedItem
                   key={value}
                   value={value}
-                  aria-label={label}
-                  title={label}
+                  aria-label={t(labelKey as any)}
+                  title={t(labelKey as any)}
                   className="grid h-[26px] min-h-0 flex-1 place-items-center rounded-[7px] bg-sub p-0 hover:bg-paper-deep sm:flex-1"
                 >
                   <Icon size="rail" />
