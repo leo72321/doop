@@ -10,7 +10,7 @@ import { AgentKeys } from '../components/AgentKeys'
 import { Webhooks } from '../components/Webhooks'
 import { AccountMenu } from '../components/DashShell'
 import { railLayout } from '../components/AppRail'
-import { useI18n } from '../lib/i18n'
+import { t, useI18n } from '../lib/i18n'
 import { BellIcon, ChevronLeftIcon, KeyIcon, MoonIcon, SparkIcon, UserIcon } from '../components/ui/icons'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Button } from '../components/ui/button'
@@ -198,10 +198,9 @@ export function Settings() {
             <>
               <SettingsCard>
                 <CardHeader>
-                  <CardTitle>Doop Agent</CardTitle>
+                  <CardTitle>{t('settings.cardTitle')}</CardTitle>
                   <CardDescription>
-                    Choose how the Doop Agent runs on your canvases: a connected model account or Claude CLI on your
-                    desktop. Your provider’s usage limits and charges apply.
+                    {t('settings.cardDescription')}
                   </CardDescription>
                   {meter && (
                     <div className="mt-[11px] flex flex-col items-start gap-[7px] text-caption text-ink-faint sm:flex-row sm:items-center sm:gap-2.5">
@@ -210,7 +209,7 @@ export function Settings() {
                           className="w-[min(100%,240px)] sm:w-[180px]"
                           value={left ?? 0}
                           max={allowance.limit}
-                          aria-label="Free Doop Agent tasks left"
+                          aria-label={t('settings.freeTasksLeft')}
                         />
                       )}
                       <span>{meter}</span>

@@ -1,3 +1,4 @@
+import { t, useI18n } from '../lib/i18n'
 import { useMemo, useState } from 'react'
 import { colorFor } from '../../shared/types'
 import { canCommentOpenCanvas, useStore } from '../lib/store'
@@ -22,6 +23,7 @@ const emptyNote = 'px-4 py-6 text-center text-[12px] leading-[1.45] text-ink-fai
  *  opens it; replying and resolving work from here too, so a review pass
  *  never has to hunt pins across the canvas. */
 export function CommentsPanel() {
+  const { t } = useI18n()
   const comments = useStore((s) => s.comments)
   const canvas = useStore((s) => s.canvas)
   const activePageId = useStore((s) => s.activePageId)
@@ -36,7 +38,7 @@ export function CommentsPanel() {
     return (
       <PanelBody className="py-2">
         <div className={emptyNote}>
-          No comments on this page yet. Use the comment tool or right-click an element to leave one.
+          {t('comments.empty')}
         </div>
       </PanelBody>
     )
@@ -45,16 +47,16 @@ export function CommentsPanel() {
   return (
     <PanelBody className="pb-2">
       {/* the same quiet segmented switch as the panel's own tabs */}
-      <div role="group" aria-label="Comment filter" className="flex gap-0.5 px-3 pt-2 pb-1">
+      <div role="group" aria-label={t('comments.filter')} className="flex gap-0.5 px-3 pt-2 pb-1">
         <FilterTab active={filter === 'open'} count={counts.open} onClick={() => setFilter('open')}>
-          Open
+          {t('comments.open')}
         </FilterTab>
         <FilterTab active={filter === 'resolved'} count={counts.resolved} onClick={() => setFilter('resolved')}>
-          Resolved
+          {t('comments.resolved')}
         </FilterTab>
       </div>
       {shown.length === 0 ? (
-        <div className={emptyNote}>No {filter} threads on this page.</div>
+        <div className={emptyNote}>{t('comments.noThreads', { filter: filter === 'open' ? t('comments.open') : t('comments.resolved') })}</div>
       ) : (
         shown.map((t) => <ThreadRow key={t.root.id} thread={t} />)
       )}
@@ -100,6 +102,7 @@ function reportLimit(err: unknown) {
  *  line, the comment under it, then where it is pinned and how many replies.
  *  Open threads carry a reply field and a Resolve action. */
 function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
+  const { t } = useI18n()
   const { root, frame } = thread
   const resolved = threadState(thread) === 'resolved'
   /* a view link reads threads; it neither replies nor resolves */
@@ -152,7 +155,7 @@ function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
       <div
         role="button"
         tabIndex={0}
-        title={frame ? `Go to “${frame.name}”` : 'Go to the pin on the canvas'}
+        title={frame ? t('comments.goToFrame', { name: frame.name }) : t('comments.goToPin')}
         onClick={goToThread}
         onKeyDown={(e) => {
           if (e.target !== e.currentTarget) return
@@ -193,7 +196,7 @@ function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
             )}
             {resolved && root.resolvedBy && (
               <span className="min-w-0 truncate">
-                {frame ? '· ' : ''}resolved by {root.resolvedBy}
+                {frame ? '· ' : ''}{t('comments.resolvedBy', { user: root.resolvedBy })}
               </span>
             )}
           </span>
@@ -201,10 +204,10 @@ function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
       </div>
       {resolved && thread.replies.length > 0 && (
         <Disclosure
-          label={`${thread.replies.length} ${thread.replies.length === 1 ? 'reply' : 'replies'}`}
+          label={t('comments.replyCount', { count: thread.replies.length, replies: thread.replies.length === 1 ? t('comments.reply') : t('comments.replies') })}
           className="py-1 pr-1.5 pl-[28px] text-label text-ink-soft"
         >
-          <ol className="space-y-3" aria-label="Resolved replies">
+          <ol className="space-y-3" aria-label={t('comments.resolvedReplies')}>
             {thread.replies.map((reply) => (
               <li key={reply.id}>
                 <div className="flex items-center justify-between gap-2">
@@ -223,8 +226,8 @@ function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
             variant="bare"
             inputSize="auto"
             className="h-7 min-w-0 flex-1 rounded-[7px] bg-surface px-2.5 shadow-ring focus:shadow-elevation-1-focus md:text-[12px]"
-            placeholder="Reply… @doop to ask the agent"
-            aria-label={`Reply to ${root.from}`}
+            placeholder={t('comments.replyPlaceholder')}
+            aria-label={t('comments.replyTo', { user: root.from })}
             value={draft}
             disabled={sending}
             onChange={(e) => setDraft(e.target.value)}
@@ -235,17 +238,17 @@ function ThreadRow({ thread }: { thread: CommentThreadGroup }) {
           <Button
             variant="bare"
             className="h-7 flex-none gap-1 rounded-[7px] px-2 text-[12px] font-normal"
-            title="Mark this thread as resolved"
+            title={t('comments.resolveTitle')}
             onClick={resolve}
           >
             <CheckIcon className="size-3.5" />
-            Resolve
+            {t('comments.resolveBtn')}
           </Button>
         </div>
       )}
       {failed && (
         <div className="pl-[28px] text-[11px] leading-[1.4] text-accent-ink">
-          That reply did not go through — it may be resolved already. Try again.
+          {t('comments.replyFailed')}
         </div>
       )}
     </div>

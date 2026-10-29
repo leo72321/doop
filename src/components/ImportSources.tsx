@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { t, useI18n } from '../lib/i18n'
 import { Button } from './ui/button'
 import { ArrowLeftIcon, ArrowRightIcon } from './ui/icons'
 import { ModalLede, ModalTitle } from './ui/modal'
@@ -21,11 +22,12 @@ export interface ImportSource {
 }
 
 export function SourcePicker({ sources, onPick }: { sources: ImportSource[]; onPick: (id: string) => void }) {
+  const { t } = useI18n()
   return (
     <>
-      <ModalTitle>匯入至 Doop</ModalTitle>
+      <ModalTitle>{t('import.modalTitle')}</ModalTitle>
       <ModalLede>
-        選擇來源。若匯入找到多個頁面或畫框，會在正式置入前提供預覽審查。
+        {t('import.modalLede')}
       </ModalLede>
       <div className="mt-6 grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-3">
         {sources.map((source) => (
@@ -47,7 +49,7 @@ export function SourcePicker({ sources, onPick }: { sources: ImportSource[]; onP
             <b className="mt-4 text-lead font-semibold tracking-[-0.012em]">{source.title}</b>
             <span className="mt-1 text-body leading-[1.45] text-ink-soft">{source.blurb}</span>
             {source.soon ? (
-              <span className="absolute right-4 top-4 text-caption text-ink-faint">即將推出</span>
+              <span className="absolute right-4 top-4 text-caption text-ink-faint">{t('import.soon')}</span>
             ) : (
               <span className="absolute bottom-3.5 right-4 text-accent-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                 <ArrowRightIcon className="size-4" />
@@ -83,12 +85,13 @@ export function ImportStepFooter({
   backDisabled?: boolean
   children?: ReactNode
 }) {
+  const { t } = useI18n()
   return (
     <div className="mt-6 flex items-center gap-2.5 border-t border-line-soft pt-[18px]">
       <span className="mr-auto min-w-0 text-label leading-[1.4] text-ink-faint">{note}</span>
       <Button variant="ghost" className="flex-none gap-2" disabled={backDisabled} onClick={onBack}>
         <ArrowLeftIcon className="size-3.5" />
-        返回
+        {t('common.back')}
       </Button>
       {children}
     </div>

@@ -1,3 +1,4 @@
+import { t, useI18n } from '../lib/i18n'
 import { planRow, planMark, planPill, planAsCode, actionsRow } from './ui/model-plan'
 import { BrandMark } from './ui/brand-mark'
 import { AgentIcon } from './AgentIcon'
@@ -186,7 +187,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
         await selectServer()
       } catch {
         setSwitchFailed(true)
-        setError('ChatGPT connected, but switching providers failed. Retry the switch without signing in again.')
+        setError(t('model.chatgptSwitchError'))
       } finally {
         setBusy(false)
       }
@@ -377,8 +378,8 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
   const effortPicker = () =>
     account.effort ? (
       <div className="mt-[10px] flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="text-body text-ink-soft">Reasoning effort</span>
-        <Segmented aria-label="Reasoning effort" value={account.effort} onValueChange={pickEffort} disabled={busy}>
+        <span className="text-body text-ink-soft">{t('model.reasoningEffort')}</span>
+        <Segmented aria-label={t('model.reasoningEffort')} value={account.effort} onValueChange={pickEffort} disabled={busy}>
           {reasoningEffortOptions(account.effort).map((e) => (
             <SegmentedItem key={e.id} value={e.id} title={e.blurb}>
               {e.name}
@@ -437,7 +438,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
       )
     }
     return live ? (
-      <ToggleChipGroup aria-label="Model" value={account.model ?? ''} onValueChange={pickModel} disabled={busy}>
+      <ToggleChipGroup aria-label={t('model.model')} value={account.model ?? ''} onValueChange={pickModel} disabled={busy}>
         {models.map((m) => (
           <ToggleChipItem key={m.id} value={m.id} title={m.vision === false ? `${m.blurb} ${VISION_NOTE}` : m.blurb}>
             {m.id === account.model && <Tick />}
@@ -481,7 +482,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
               {cfg.title}
             </h3>
             <span className={planPill(live)}>
-              {live && showKey !== cfg.kind ? (local?.enabled ? 'Connected' : 'Active · Connected') : 'Not connected'}
+              {live && showKey !== cfg.kind ? (local?.enabled ? t('model.connected') : t('model.activeConnected')) : t('model.notConnected')}
             </span>
           </div>
           <p className="mt-1.5 text-copy leading-[1.55] text-ink-soft max-md:text-copy">{cfg.lede}</p>
@@ -498,7 +499,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                       setShowKey(cfg.kind)
                     }}
                   >
-                    Rotate key
+                    {t('model.rotateKey')}
                   </Button>
                   {local?.enabled && (
                     <Button
@@ -507,11 +508,11 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                         selectServer().catch(fail)
                       }}
                     >
-                      Use instead
+                      {t('model.useInstead')}
                     </Button>
                   )}
                   <Button variant="danger" className={rowBtn} onClick={remove} disabled={busy}>
-                    Disconnect
+                    {t('model.disconnect')}
                   </Button>
                 </div>
               </div>
@@ -527,7 +528,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
           ) : showKey === cfg.kind ? (
             <div className={planFlow}>
               <p className="mb-3 mt-2 text-body leading-[1.55] text-ink-soft">
-                The key is stored on the server and never shown again.
+                {t('model.keyStoredOnServer')}
               </p>
               <Input
                 className={maInput}
@@ -540,10 +541,10 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
               />
               <div className={maActions}>
                 <Button variant="primary" className={rowBtn} onClick={saveKey} disabled={busy || !apiKey.trim()}>
-                  {busy ? 'Saving…' : live ? 'Rotate key' : 'Save key'}
+                  {busy ? t('model.saving') : live ? t('model.rotateKey') : t('model.saveKey')}
                 </Button>
                 <Button variant="ghost" className={rowBtn} onClick={() => setShowKey(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             </div>
@@ -558,7 +559,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                 }}
                 disabled={busy}
               >
-                {replaces ? 'Use instead' : 'Connect'}
+                {replaces ? t('model.useInstead') : t('model.connect')}
               </Button>
             </div>
           )}
@@ -577,24 +578,24 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-[10px] max-md:flex-wrap max-md:items-start max-md:gap-x-[9px] max-md:gap-y-[6px]">
               <h3 className="font-display text-heading font-extrabold normal-case tracking-[-0.02em] text-ink max-md:text-heading">
-                Codex Plan
+                {t('model.codexPlan')}
               </h3>
               <span className={planPill(onChatgpt)}>
-                {onChatgpt ? (local?.enabled ? 'Connected' : 'Active · Connected') : 'Not connected'}
+                {onChatgpt ? (local?.enabled ? t('model.connected') : t('model.activeConnected')) : t('model.notConnected')}
               </span>
             </div>
             <p className="mt-1.5 text-copy leading-[1.55] text-ink-soft max-md:text-copy">
-              Route OpenAI models through your ChatGPT subscription
+              {t('model.codexLede')}
             </p>
             {onChatgpt && account.email && (
               <dl className="mt-[14px] grid grid-cols-[auto_auto] items-center justify-start gap-x-[14px] gap-y-2 text-body text-ink-soft max-md:grid-cols-1 max-md:gap-[3px]">
-                <dt>Connected as</dt>
+                <dt>{t('model.connectedAs')}</dt>
                 <dd className="min-w-0">
                   <code className={planAsCode}>{account.email}</code>
                 </dd>
                 {account.plan && (
                   <>
-                    <dt className="max-md:mt-2">Plan</dt>
+                    <dt className="max-md:mt-2">{t('model.plan')}</dt>
                     <dd className="min-w-0">
                       <code className={planAsCode}>{planName(account.plan)}</code>
                     </dd>
@@ -610,11 +611,11 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                   <div className="flex flex-wrap gap-2 max-md:[&>button]:flex-1">
                     {(local?.enabled || switchFailed) && (
                       <Button disabled={busy} onClick={() => activateChatgpt(account)}>
-                        {switchFailed ? 'Retry switch' : 'Use instead'}
+                        {switchFailed ? t('model.retrySwitch') : t('model.useInstead')}
                       </Button>
                     )}
                     <Button variant="danger" className={rowBtn} onClick={remove} disabled={busy}>
-                      Disconnect
+                      {t('model.disconnect')}
                     </Button>
                   </div>
                 </div>
@@ -624,34 +625,30 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
             ) : device ? (
               <div className={planFlow}>
                 <ol className={maSteps}>
+                  <li>{t('model.deviceStep1')}</li>
                   <li>
-                    One-time setup: turn on <b>device code authorization</b> in ChatGPT → Settings → Security. (On a
-                    workspace account an admin has to allow it.)
-                  </li>
-                  <li>
-                    Open{' '}
+                    {t('model.deviceStep2', { url: '' })}{' '}
                     <a href={device.verificationUrl} target="_blank" rel="noreferrer noopener">
                       {device.verificationUrl.replace(/^https:\/\//, '')}
-                    </a>{' '}
-                    and enter this code:
+                    </a>
                   </li>
                 </ol>
                 <CodeBlock text={device.userCode} />
                 <p className={maWaiting}>
-                  <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> Waiting for approval…
+                  <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> {t('model.waitingApproval')}
                 </p>
                 <div className={maActions}>
                   <Button asChild variant="primary" className={rowBtn}>
                     <a href={device.verificationUrl} target="_blank" rel="noreferrer noopener">
-                      Open verification page
+                      {t('model.openVerification')}
                     </a>
                   </Button>
                   <Button variant="ghost" className={rowBtn} onClick={cancelDevice}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 </div>
                 <Button variant="bare" size="sm" className={maToggle} onClick={usePasteFlow} disabled={busy}>
-                  Device codes not available on your account? Use the browser sign-in instead
+                  {t('model.deviceFallback')}
                 </Button>
               </div>
             ) : waiting ? (
@@ -659,13 +656,12 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                 {/* Doop holds the loopback port itself, so approving is the
                     whole job — this row flips on its own. */}
                 <p className={maWaiting}>
-                  <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> Waiting for you to
-                  approve it in the other tab…
+                  <Dot className="animate-[arrival-pulse_1.6s_ease-in-out_infinite] bg-brand" /> {t('model.waitingOtherTab')}
                 </p>
                 <div className={maActions}>
                   <Button asChild variant="ghost" className={rowBtn}>
                     <a href={authUrl} target="_blank" rel="noreferrer noopener">
-                      Reopen sign-in
+                      {t('model.reopenSignIn')}
                     </a>
                   </Button>
                   <Button
@@ -674,18 +670,16 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                     className={cn(maToggle, 'mt-0 underline')}
                     onClick={() => setWaiting(false)}
                   >
-                    Paste the redirect URL instead
+                    {t('model.pasteRedirectUrl')}
                   </Button>
                 </div>
               </div>
             ) : authUrl ? (
               <div className={planFlow}>
                 <ol className={maSteps}>
-                  <li>Approve the connection in the tab that just opened.</li>
-                  <li>
-                    You will land on a <code>localhost:1455</code> page that <b>fails to load</b> — that is expected.
-                  </li>
-                  <li>Copy that page's full address and paste it below.</li>
+                  <li>{t('model.oauthStep1')}</li>
+                  <li>{t('model.oauthStep2')}</li>
+                  <li>{t('model.oauthStep3')}</li>
                 </ol>
                 <Input
                   className={maInput}
@@ -697,11 +691,11 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
                 />
                 <div className={maActions}>
                   <Button variant="primary" className={rowBtn} onClick={finish} disabled={busy || !redirect.trim()}>
-                    {busy ? 'Connecting…' : 'Finish connecting'}
+                    {busy ? t('model.connecting') : t('model.finishConnecting')}
                   </Button>
                   <Button asChild variant="ghost" className={rowBtn}>
                     <a href={authUrl} target="_blank" rel="noreferrer noopener">
-                      Reopen sign-in
+                      {t('model.reopenSignIn')}
                     </a>
                   </Button>
                 </div>
@@ -710,7 +704,7 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
               <div className={actionsRow}>
                 {modelPicker(false, 'chatgpt')}
                 <Button className={rowBtn} onClick={start} disabled={busy}>
-                  {busy ? 'Opening…' : replaces ? 'Use instead' : 'Connect'}
+                  {busy ? t('model.opening') : replaces ? t('model.useInstead') : t('model.connect')}
                 </Button>
               </div>
             )}
@@ -720,24 +714,24 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
 
       {keySection({
         kind: 'openai-key',
-        title: 'OpenAI API key',
-        lede: 'Pay per token on your own OpenAI account — no ChatGPT subscription involved',
+        title: t('model.openAiTitle'),
+        lede: t('model.openAiLede'),
         mark: <OpenAiMark />,
         placeholder: 'sk-…',
       })}
 
       {keySection({
         kind: 'openrouter-key',
-        title: 'OpenRouter API key',
-        lede: 'One key for Kimi, Qwen, GLM, DeepSeek, MiniMax, Gemini and more — pay per token on your OpenRouter account',
+        title: t('model.openRouterTitle'),
+        lede: t('model.openRouterLede'),
         mark: <OpenRouterMark />,
         placeholder: 'sk-or-…',
       })}
 
       {keySection({
         kind: 'gemini-key',
-        title: 'Gemini API key',
-        lede: 'Google’s Gemini models, plus Nano Banana image generation — pay per token on your Google AI account',
+        title: t('model.geminiTitle'),
+        lede: t('model.geminiLede'),
         mark: <GeminiMark />,
         placeholder: 'AIza…',
       })}
@@ -745,8 +739,8 @@ export function ModelAccountPanel({ onChange }: { onChange?: () => void }) {
       {desktop && <LocalClaudeRow />}
       {keySection({
         kind: 'anthropic-key',
-        title: 'Claude API key',
-        lede: 'Pay per token on your Anthropic account. Runs on Doop’s server.',
+        title: t('model.claudeTitle'),
+        lede: t('model.claudeLede'),
         mark: <AgentIcon name="claude" size={20} />,
         placeholder: 'sk-ant-…',
       })}

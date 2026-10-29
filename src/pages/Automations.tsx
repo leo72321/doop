@@ -34,6 +34,7 @@ import {
 import { MoreHorizontalIcon, TrashIcon } from '../components/ui/icons'
 import { DashContent, DashHeader, DashLayout, DashMain, DashTitle } from '../components/ui/dash'
 import { cn } from '@/lib/utils'
+import { t, useI18n } from '../lib/i18n'
 
 /** The browser's zone — what "Monday 09:00" means to the person setting it up. */
 export function localTimeZone(): string {
@@ -45,8 +46,8 @@ export function localTimeZone(): string {
 }
 
 /** "every Monday 09:00" — the schedule as the list rows say it */
-function everyLine(a: Automation): string {
-  if (a.trigger.type === 'approval') return 'when designs are approved'
+function everyLine(a: Automation, t: (key: any, vars?: any) => string): string {
+  if (a.trigger.type === 'approval') return t('automations.whenApproved')
   return describeSchedule(a.schedule)
     .replace(/^Every /, 'every ')
     .replace(' at ', ' ')
@@ -59,6 +60,7 @@ function everyLine(a: Automation): string {
  * about what the feature is for.
  */
 export function Automations() {
+  const { t } = useI18n()
   const [items, setItems] = useState<Automation[] | null>(null)
   const [canvases, setCanvases] = useState<CanvasMeta[]>([])
   const [busy, setBusy] = useState(false)
@@ -88,7 +90,7 @@ export function Automations() {
             steps: example.steps.map((s, i) => ({ ...s, id: `s${i + 1}`, canvasId: '' }) as Step),
           })
         : await api.createAutomation({
-            name: 'Untitled automation',
+            name: t('automations.untitled'),
             schedule: { kind: 'weekly', weekday: 1, hour: 9, minute: 0, tz },
             steps: [],
           })
@@ -96,7 +98,7 @@ export function Automations() {
       navigate(`/automations/${created.id}`)
     } catch (error) {
       console.error(error)
-      showToast('Couldn’t create the automation')
+      showToast(t('automations.cantCreate'))
     } finally {
       setBusy(false)
     }
@@ -110,7 +112,7 @@ export function Automations() {
     } catch (error) {
       console.error(error)
       setItems((list) => list?.map((x) => (x.id === a.id ? a : x)) ?? null)
-      showToast('Couldn’t save')
+      showToast(t('automations.cantSave'))
     }
   }
 
@@ -121,7 +123,7 @@ export function Automations() {
       setItems((list) => list?.filter((x) => x.id !== a.id) ?? null)
     } catch (error) {
       console.error(error)
-      showToast('Couldn’t delete')
+      showToast(t('automations.cantDelete'))
     }
   }
 
@@ -135,12 +137,12 @@ export function Automations() {
         <DashHeader variant="bare">
           <span className="flex-1" />
           <Button variant="primary" size="bar" disabled={busy} onClick={() => create()}>
-            <PlusIcon width={15} height={15} strokeWidth={1.75} /> New automation
+            <PlusIcon width={15} height={15} strokeWidth={1.75} /> {t('automations.new')}
           </Button>
         </DashHeader>
 
         <DashContent className="pt-2 md:pt-3">
-          <DashTitle className="mb-5">Automations</DashTitle>
+          <DashTitle className="mb-5">{t('automations.title')}</DashTitle>
 
           {items === null ? (
             <div className="flex flex-col gap-2">
@@ -163,11 +165,11 @@ export function Automations() {
                     </span>
                   </>
                 }
-                title="Nothing runs on its own yet"
-                description="Run on a schedule or when designs are approved. Create variants, hand off tickets and share updates."
+                title={t('automations.emptyTitle')}
+                description={t('automations.emptyDesc')}
                 action={
                   <Button variant="primary" disabled={busy} onClick={() => create()}>
-                    + New automation
+                    + {t('automations.new')}
                   </Button>
                 }
               />
@@ -177,10 +179,10 @@ export function Automations() {
             <div className="overflow-hidden rounded-panel border border-line bg-surface shadow-card">
               <div className="hidden grid-cols-[52px_minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_36px] items-center gap-3 border-b border-line-soft px-4 py-2.5 text-caption text-ink-faint md:grid">
                 <span />
-                <span>Automation</span>
-                <span>Canvas</span>
-                <span>Last run</span>
-                <span>Next run</span>
+                <span>{t('automations.tableAutomation')}</span>
+                <span>{t('automations.tableCanvas')}</span>
+                <span>{t('automations.tableLastRun')}</span>
+                <span>{t('automations.tableNextRun')}</span>
                 <span />
               </div>
               {items.map((a) => {
@@ -198,7 +200,7 @@ export function Automations() {
                     <Switch
                       checked={a.enabled}
                       onCheckedChange={(on) => toggle(a, on)}
-                      aria-label={`${a.name} on or off`}
+                      aria-label={t('automations.toggleLabel', { name: a.name })}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.stopPropagation()}
                     />
@@ -227,7 +229,7 @@ export function Automations() {
                           {a.name}
                         </Pressable>
                         {first?.type === 'agent' && first.roles.length === 1 && <> · @{first.roles[0]}</>} ·{' '}
-                        {everyLine(a)}
+                        {everyLine(a, t)}
                       </span>
                     </div>
                     <span className="hidden min-w-0 items-center gap-2.5 text-body text-ink-soft md:flex">
@@ -235,12 +237,12 @@ export function Automations() {
                         <>
                           <FrameThumb size="xs" frameId={canvas?.previewFrameId} />
                           <span className="truncate">
-                            {canvas?.name ?? 'Canvas'}
+                            {canvas?.name ?? t('automations.tableCanvas')}
                             {canvasIds.length > 1 ? ` +${canvasIds.length - 1}` : ''}
                           </span>
                         </>
                       ) : (
-                        <em className="not-italic text-ink-faint">Pick a canvas</em>
+                        <em className="not-italic text-ink-faint">{t('automations.pickCanvas')}</em>
                       )}
                     </span>
                     <span className="hidden min-w-0 items-center gap-2 text-body text-ink-soft md:flex">
@@ -249,9 +251,9 @@ export function Automations() {
                           <RunDot status={a.lastRun.status} />
                           <span className="truncate">
                             {a.lastRun.status === 'running'
-                              ? 'Running'
+                              ? t('automations.running')
                               : a.lastRun.status === 'failed'
-                                ? 'Failed'
+                                ? t('automations.failed')
                                 : formatRunTime(a.lastRun.startedAt)}
                             {a.lastRun.status === 'ok' && a.lastRun.summary ? ` · ${a.lastRun.summary}` : ''}
                           </span>
@@ -263,12 +265,12 @@ export function Automations() {
                                 navigate(a.lastRun?.failure === 'reconnect' ? '/integrations' : `/automations/${a.id}`)
                               }}
                             >
-                              {a.lastRun.failure === 'reconnect' ? 'Reconnect' : 'Fix'}
+                              {a.lastRun.failure === 'reconnect' ? t('automations.reconnect') : t('automations.fix')}
                             </b>
                           )}
                         </>
                       ) : (
-                        <span className="text-ink-faint">Never</span>
+                        <span className="text-ink-faint">{t('automations.never')}</span>
                       )}
                     </span>
                     <span
@@ -277,15 +279,15 @@ export function Automations() {
                       {a.nextRunAt
                         ? formatRunTime(a.nextRunAt)
                         : !a.enabled
-                          ? 'paused'
+                          ? t('automations.paused')
                           : a.trigger.type === 'approval' && !incompleteReason(a.steps, a.trigger)
-                            ? 'on approval'
-                            : 'finish setup'}
+                            ? t('automations.onApproval')
+                            : t('automations.finishSetup')}
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton
-                          aria-label={`Actions for ${a.name}`}
+                          aria-label={t('automations.actionsFor', { name: a.name })}
                           shape="round"
                           className="text-ink-faint"
                           onClick={(e) => e.stopPropagation()}
@@ -295,7 +297,7 @@ export function Automations() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent width="sm" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem tone="danger" onSelect={() => setRemove(a)}>
-                          <TrashIcon className="size-4" /> Delete
+                          <TrashIcon className="size-4" /> {t('common.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -309,9 +311,9 @@ export function Automations() {
       <ConfirmDialog
         open={!!remove}
         onOpenChange={(open) => !open && setRemove(null)}
-        title={`Delete “${remove?.name ?? 'automation'}”?`}
-        description="It stops running and its run history goes with it. Frames it already created stay on their canvases."
-        confirmLabel="Delete"
+        title={t('automations.deleteTitle', { name: remove?.name ?? t('automations.itemFallback') })}
+        description={t('automations.deleteDesc')}
+        confirmLabel={t('common.delete')}
         destructive
         onConfirm={() => {
           if (remove) void destroy(remove)
@@ -326,9 +328,10 @@ export function Automations() {
 /** The example cards: a chain of marks, a name, one line, the schedule and
  *  "Use". The editor's empty slot shows the same set as compact rows. */
 export function Examples({ onUse, busy }: { onUse: (example: AutomationExample) => void; busy?: boolean }) {
+  const { t } = useI18n()
   return (
     <section className="mt-[30px]">
-      <h2 className="text-caption text-ink-faint">Start from an example</h2>
+      <h2 className="text-caption text-ink-faint">{t('automations.startFromExampleHeading')}</h2>
       <div className="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
         {AUTOMATION_EXAMPLES.map((e) => (
           <Pressable
@@ -342,10 +345,10 @@ export function Examples({ onUse, busy }: { onUse: (example: AutomationExample) 
             <span className="text-body text-ink-soft">{e.blurb}</span>
             <div className="mt-auto flex items-center pt-1.5 text-caption text-ink-faint">
               {e.trigger === 'approval'
-                ? 'When designs are approved'
+                ? t('automations.whenApprovedCap')
                 : describeSchedule({ ...e.schedule, tz: 'UTC' }).replace(' at ', ' ')}
               <b className="ml-auto inline-flex items-center gap-1 font-sans text-body font-semibold text-ink group-hover:text-accent-ink">
-                Use
+                {t('automations.use')}
                 <ArrowRightIcon size={14} />
               </b>
             </div>

@@ -1,3 +1,4 @@
+import { t, useI18n } from '../lib/i18n'
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { nanoid } from 'nanoid'
 import { canvasPages } from '../../shared/pages'
@@ -18,6 +19,7 @@ export const sectionHeading = 'text-[11px] font-normal text-ink-faint'
 const sectionBtn = 'size-5 rounded-[5px] text-ink-faint hover:bg-paper-deep hover:text-ink'
 
 export function PagesPanel({ fill = false }: { fill?: boolean }) {
+  const { t } = useI18n()
   const canvas = useStore((s) => s.canvas)
   const activePageId = useStore((s) => s.activePageId)
   const selectedIds = useStore((s) => s.selectedIds)
@@ -41,7 +43,7 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
       await moveFramesToPage(canvas, movableIds, pageId)
     } catch {
       if (useStore.getState().canvas?.id === canvas.id)
-        useStore.getState().pushNotice('Could not move all selected frames to the page')
+        useStore.getState().pushNotice(t('pages.cantMove'))
     } finally {
       setBusy(false)
     }
@@ -59,7 +61,7 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
       useStore
         .getState()
         .pushNotice(
-          error instanceof ApiError && typeof error.body.error === 'string' ? error.body.error : 'Could not save pages',
+          error instanceof ApiError && typeof error.body.error === 'string' ? error.body.error : t('pages.cantSave'),
         )
     } finally {
       setBusy(false)
@@ -127,7 +129,7 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
         .pushNotice(
           error instanceof ApiError && typeof error.body.error === 'string'
             ? error.body.error
-            : 'Could not duplicate the page',
+            : t('pages.cantDuplicate'),
         )
     } finally {
       setBusy(false)
@@ -139,10 +141,10 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
       variant="bare"
       size="icon-sm"
       className={sectionBtn}
-      aria-label="Add page"
+      aria-label={t('pages.addPage')}
       disabled={busy}
       onClick={() => {
-        const page = { id: nanoid(10), name: `Page ${pages.length + 1}` }
+        const page = { id: nanoid(10), name: t('pages.defaultPageName', { num: pages.length + 1 }) }
         void save([...pages, page], page.id)
       }}
     >
@@ -187,7 +189,7 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
                 >
                   <input
                     autoFocus
-                    aria-label="Page name"
+                    aria-label={t('pages.pageName')}
                     maxLength={100}
                     disabled={busy}
                     onFocus={(e) => e.target.select()}
@@ -237,17 +239,17 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
                 setName(page.name)
               }}
             >
-              Rename
+              {t('common.rename')}
             </ContextMenuItem>
             <ContextMenuItem disabled={busy || pages.length >= 100} onSelect={() => void duplicate(page.id)}>
-              Duplicate page
+              {t('pages.duplicatePage')}
             </ContextMenuItem>
             <ContextMenuItem
               tone="danger"
               disabled={busy || pages.length === 1}
               onSelect={() => void save(pages.filter((p) => p.id !== page.id))}
             >
-              Delete page
+              {t('pages.deletePage')}
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
@@ -259,7 +261,7 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
     <div className={cn('flex flex-none flex-col', fill && 'min-h-0 flex-1')}>
       <div className={cn('mt-1.5 flex h-6 flex-none items-center justify-between pr-2.5 pl-3.5', sectionHeading)}>
         <span data-slot="page-section-heading" className={sectionHeading}>
-          Pages
+          {t('pages.title')}
         </span>
         {!readOnly && addPage}
       </div>
@@ -271,8 +273,8 @@ export function PagesPanel({ fill = false }: { fill?: boolean }) {
            div too, before the native event reaches window */
         <div className="px-2 pb-2" onKeyDown={(e) => e.stopPropagation()}>
           <Select value="" disabled={busy || !movableIds.length} onValueChange={(id) => void moveSelection(id)}>
-            <SelectTrigger size="sm" className="w-full" aria-label="Move selection to page">
-              <SelectValue placeholder="Move selection to page…" />
+            <SelectTrigger size="sm" className="w-full" aria-label={t('pages.moveSelection')}>
+              <SelectValue placeholder={t('pages.moveSelectionPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {pages
