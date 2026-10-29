@@ -4,6 +4,7 @@ import { ENTERPRISE_CONTACT, formatUsd, seatPerMonth, TEAM_SEAT_PRICE } from '..
 import type { BillingInterval, Plan } from '../../shared/billing'
 import { api, errorMessage, paywalledWorkspace, type PlansResponse } from '../lib/api'
 import { authClient } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 import { posthog } from '../lib/posthog'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -41,6 +42,7 @@ export function CreateWorkspaceModal({
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
 
   async function create() {
     const clean = name.trim()
@@ -52,7 +54,7 @@ export function CreateWorkspaceModal({
       posthog.capture('workspace_created', { active: ws.active })
       onCreated(ws)
     } catch (caught) {
-      setError(errorMessage(caught, 'Couldn’t create the workspace'))
+      setError(errorMessage(caught, t('workspace.createFailed')))
       setBusy(false)
     }
   }
@@ -60,31 +62,30 @@ export function CreateWorkspaceModal({
   return (
     <Modal size="sm" onClose={onClose}>
       <>
-        <ModalEyebrow>Workspaces</ModalEyebrow>
-        <ModalTitle className="mt-2">Name your workspace</ModalTitle>
+        <ModalEyebrow>{t('workspace.eyebrow')}</ModalEyebrow>
+        <ModalTitle className="mt-2">{t('workspace.nameYourWorkspace')}</ModalTitle>
         <ModalLede>
-          A workspace is your team’s shared home: everyone in it can open every canvas inside. You can move existing
-          canvases in afterwards.
+          {t('workspace.createLede')}
         </ModalLede>
         <Input
           variant="well"
           className="mt-5"
           autoFocus
-          placeholder="Acme Design"
+          placeholder={t('workspace.placeholder')}
           value={name}
           maxLength={80}
           disabled={busy}
           onChange={(event) => setName(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && create()}
-          aria-label="Workspace name"
+          aria-label={t('workspace.nameAria')}
         />
         {error && <p className="mt-2 text-label text-accent-ink">{error}</p>}
         <ModalActions>
           <Button onClick={onClose} disabled={busy}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={create} disabled={busy || !name.trim()}>
-            {busy ? 'Creating…' : 'Create workspace'}
+            {busy ? t('workspace.creating') : t('workspace.createWorkspace')}
           </Button>
         </ModalActions>
       </>
@@ -113,6 +114,7 @@ export function UpgradeModal({
   const [interval, setInterval] = useState<BillingInterval>('month')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
 
   useEffect(() => {
     posthog.capture('paywall_shown', { workspaceId, reason })
@@ -143,42 +145,48 @@ export function UpgradeModal({
       const { url } = await api.workspaceCheckout(workspaceId, chosen)
       location.assign(url)
     } catch (caught) {
-      setError(errorMessage(caught, 'Couldn’t start checkout'))
+      setError(errorMessage(caught, t('workspace.checkoutFailed')))
       setBusy(false)
     }
   }
 
-  const title = workspace ? (workspace.active ? `Plans for ${workspace.name}` : `Unlock ${workspace.name}`) : 'Plans'
+  const title = workspace
+    ? workspace.active
+      ? t('workspace.plansFor', { name: workspace.name })
+      : t('workspace.unlockWorkspace', { name: workspace.name })
+    : t('workspace.plans')
 
   return (
     <Modal size="xl" onClose={onClose}>
       <>
-        <ModalEyebrow>Team plan · {formatUsd(TEAM_SEAT_PRICE.month)} per seat per month</ModalEyebrow>
+        <ModalEyebrow>{t('workspace.teamPlanSeatPrice', { price: formatUsd(TEAM_SEAT_PRICE.month) })}</ModalEyebrow>
         <ModalTitle className="mt-2">{title}</ModalTitle>
         <ModalLede>
-          {reason ?? 'Shared workspaces are the paid part of doop.'} Everyone in a workspace opens every canvas in it —
-          no per-canvas invites, no links to pass around. Seats are billed as people join and refunded as they leave.
+          {reason ?? t('workspace.wallLede')}
         </ModalLede>
 
         {plans && !plans.enabled ? (
           <Callout tone="success" className="mt-5">
-            Billing isn’t set up on this server, so workspaces are included. Nothing to buy — go make one.
+            {t('workspace.billingNotSetup')}
           </Callout>
         ) : (
           <>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Segmented value={chosen} onValueChange={(next) => next && setInterval(next as BillingInterval)}>
                 <SegmentedItem value="month" disabled={!!plans && !plans.intervals.includes('month')}>
-                  Monthly
+                  {t('workspace.monthly')}
                 </SegmentedItem>
                 <SegmentedItem value="year" disabled={!!plans && !plans.intervals.includes('year')}>
-                  Yearly <span className="ml-1 text-accent-ink">−20%</span>
+                  {t('workspace.yearly')} <span className="ml-1 text-accent-ink">{t('workspace.yearlyDiscount')}</span>
                 </SegmentedItem>
               </Segmented>
               <span className="text-label text-ink-faint">
                 {chosen === 'year'
-                  ? `${formatUsd(seatPerMonth('year'))} a seat a month, billed ${formatUsd(TEAM_SEAT_PRICE.year)} a year`
-                  : `${formatUsd(TEAM_SEAT_PRICE.month)} a seat, billed monthly`}
+                  ? t('workspace.yearlyPriceSub', {
+                      perMonth: formatUsd(seatPerMonth('year')),
+                      perYear: formatUsd(TEAM_SEAT_PRICE.year),
+                    })
+                  : t('workspace.monthlyPriceSub', { price: formatUsd(TEAM_SEAT_PRICE.month) })}
               </span>
             </div>
 
@@ -200,22 +208,21 @@ export function UpgradeModal({
                 {workspace ? (
                   <>
                     <b className="text-ink">
-                      {seats} seat{seats === 1 ? '' : 's'} × {formatUsd(TEAM_SEAT_PRICE[chosen])}
+                      {seats} {seats === 1 ? t('workspace.seat') : t('workspace.seats')} × {formatUsd(TEAM_SEAT_PRICE[chosen])}
                     </b>{' '}
-                    = {formatUsd(seats * TEAM_SEAT_PRICE[chosen])} per {chosen}
-                    {workspace.active && workspace.plan ? ' — already on Team; manage it from Billing.' : ''}
+                    = {formatUsd(seats * TEAM_SEAT_PRICE[chosen])} / {chosen === 'year' ? t('workspace.year') : t('workspace.month')}
+                    {workspace.active && workspace.plan ? t('workspace.alreadyOnTeam') : ''}
                   </>
                 ) : (
-                  'Counting seats…'
+                  t('workspace.countingSeats')
                 )}
                 <span className="mt-0.5 block text-caption text-ink-faint">
-                  You’ll set up payment on Stripe’s secure checkout. Cancel any time from the billing portal.
+                  {t('workspace.stripeDisclaimer')}
                 </span>
               </div>
               {workspace && !canBuy ? (
                 <span className="text-body text-ink-soft">
-                  Ask <b className="text-ink">{owner?.name ?? 'the workspace owner'}</b> to choose a plan — the owner
-                  holds the billing.
+                  {t('workspace.askOwner', { owner: owner?.name ?? t('workspace.theOwner') })}
                 </span>
               ) : (
                 <Button
@@ -225,16 +232,16 @@ export function UpgradeModal({
                   disabled={busy || !workspace || !plans || (workspace.active && !!workspace.plan)}
                   onClick={checkout}
                 >
-                  {busy ? 'Opening Stripe…' : 'Continue to checkout'}
+                  {busy ? t('workspace.openingStripe') : t('workspace.continueToCheckout')}
                 </Button>
               )}
             </div>
             {error && <p className="mt-2 text-label text-accent-ink">{error}</p>}
             {session?.user.email && (
               <p className="mt-3 text-caption text-ink-faint">
-                Receipts go to {session.user.email}. Need invoicing, SSO or a bigger team?{' '}
+                {t('workspace.receiptsNote', { email: session.user.email })}
                 <a className="font-semibold text-ink underline underline-offset-2" href={ENTERPRISE_CONTACT}>
-                  Talk to us
+                  {t('workspace.talkToUs')}
                 </a>
                 .
               </p>
@@ -247,6 +254,7 @@ export function UpgradeModal({
 }
 
 function PlanCard({ plan, interval, current }: { plan: Plan; interval: BillingInterval; current: boolean }) {
+  const { t } = useI18n()
   const team = plan.id === 'team'
   const price = plan.seatPrice ? plan.seatPrice[interval] : null
   return (
@@ -258,8 +266,8 @@ function PlanCard({ plan, interval, current }: { plan: Plan; interval: BillingIn
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-lead font-medium">{plan.name}</span>
-        {team && <Badge tone="brand">Popular</Badge>}
-        {current && <span className="text-caption text-ink-faint">Current</span>}
+        {team && <Badge tone="brand">{t('workspace.popular')}</Badge>}
+        {current && <span className="text-caption text-ink-faint">{t('workspace.current')}</span>}
       </div>
       <p className="mt-1 text-body text-ink-soft">{plan.tagline}</p>
       <div className="mt-3 text-title font-medium text-ink">
@@ -267,17 +275,17 @@ function PlanCard({ plan, interval, current }: { plan: Plan; interval: BillingIn
           plan.id === 'free' ? (
             '$0'
           ) : (
-            <span className="text-heading">Let’s talk</span>
+            <span className="text-heading">{t('workspace.letsTalk')}</span>
           )
         ) : (
           <>
             {formatUsd(interval === 'year' ? seatPerMonth('year') : price)}
-            <span className="ml-1 font-sans text-label font-medium text-ink-faint">/ seat / month</span>
+            <span className="ml-1 font-sans text-label font-medium text-ink-faint">{t('workspace.seatMonth')}</span>
           </>
         )}
       </div>
       {price !== null && interval === 'year' && (
-        <span className="text-caption text-ink-faint">billed {formatUsd(price)} a seat yearly</span>
+        <span className="text-caption text-ink-faint">{t('workspace.billedYearly', { price: formatUsd(price) })}</span>
       )}
       <ul className="mt-3.5 flex flex-col gap-[7px] text-body text-ink-soft">
         {plan.features.map((f) => (
@@ -292,7 +300,7 @@ function PlanCard({ plan, interval, current }: { plan: Plan; interval: BillingIn
           className="mt-auto flex items-center gap-1 pt-4 text-body font-semibold text-ink underline underline-offset-2"
           href={ENTERPRISE_CONTACT}
         >
-          Contact us
+          {t('workspace.contactUs')}
           <ArrowRightIcon size={14} />
         </a>
       )}
@@ -319,6 +327,7 @@ export function MoveCanvasModal({
   const [target, setTarget] = useState<string>(canvas.workspaceId ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
   const targetWs = workspaces.find((w) => w.id === target)
 
   async function move() {
@@ -333,7 +342,7 @@ export function MoveCanvasModal({
     } catch (caught) {
       const walled = paywalledWorkspace(caught)
       if (walled) onPaywall(walled)
-      else setError(errorMessage(caught, 'Couldn’t move the canvas'))
+      else setError(errorMessage(caught, t('workspace.moveFailed')))
       setBusy(false)
     }
   }
@@ -341,41 +350,40 @@ export function MoveCanvasModal({
   return (
     <Modal size="sm" onClose={onClose}>
       <>
-        <ModalTitle>Move “{canvas.name}”</ModalTitle>
+        <ModalTitle>{t('workspace.moveCanvasTitle', { name: canvas.name })}</ModalTitle>
         <ModalLede>
-          A canvas in a workspace is open to everyone in it. Move it back to Personal and only you and the people you
-          invited keep access.
+          {t('workspace.moveCanvasLede')}
         </ModalLede>
         <Select
           value={target || PERSONAL_WORKSPACE}
           disabled={busy}
           onValueChange={(value) => setTarget(value === PERSONAL_WORKSPACE ? '' : value)}
         >
-          <SelectTrigger className="mt-5 w-full" aria-label="Destination">
+          <SelectTrigger className="mt-5 w-full" aria-label={t('workspace.destinationAria')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={PERSONAL_WORKSPACE}>Personal — just you and invitees</SelectItem>
+            <SelectItem value={PERSONAL_WORKSPACE}>{t('workspace.personalOption')}</SelectItem>
             {workspaces.map((w) => (
               <SelectItem key={w.id} value={w.id}>
                 {w.name}
-                {w.active ? '' : ' (needs a plan)'}
+                {w.active ? '' : t('workspace.needsPlan')}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         {targetWs && !targetWs.active && (
           <p className="mt-2 text-label text-ink-faint">
-            {targetWs.name} has no plan yet — you’ll be asked to choose one.
+            {t('workspace.targetNeedsPlan', { name: targetWs.name })}
           </p>
         )}
         {error && <p className="mt-2 text-label text-accent-ink">{error}</p>}
         <ModalActions>
           <Button onClick={onClose} disabled={busy}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={move} disabled={busy || (target || '') === (canvas.workspaceId ?? '')}>
-            {busy ? 'Moving…' : 'Move canvas'}
+            {busy ? t('workspace.moving') : t('workspace.moveCanvas')}
           </Button>
         </ModalActions>
       </>

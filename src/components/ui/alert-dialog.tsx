@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 
 import { cn } from '@/lib/utils'
+import { t } from '../../lib/i18n'
 import { Button } from './button'
 import { modalVariants, overlayCls } from './modal'
 
@@ -15,8 +16,8 @@ function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   onConfirm,
 }: {
@@ -29,6 +30,9 @@ function ConfirmDialog({
   destructive?: boolean
   onConfirm: () => void
 }) {
+  const resolvedConfirm = confirmLabel ?? t('common.confirm')
+  const resolvedCancel = cancelLabel ?? t('common.cancel')
+
   return (
     <AlertDialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialogPrimitive.Portal>
@@ -45,11 +49,11 @@ function ConfirmDialog({
           ) : null}
           <div className="mt-6 flex flex-wrap justify-end gap-2.5 [&>*]:max-xs:flex-1 [&>*]:max-xs:justify-center">
             <AlertDialogPrimitive.Cancel asChild>
-              <Button variant="ghost">{cancelLabel}</Button>
+              <Button variant="ghost">{resolvedCancel}</Button>
             </AlertDialogPrimitive.Cancel>
             <AlertDialogPrimitive.Action asChild>
               <Button variant={destructive ? 'danger-solid' : 'primary'} onClick={onConfirm}>
-                {confirmLabel}
+                {resolvedConfirm}
               </Button>
             </AlertDialogPrimitive.Action>
           </div>

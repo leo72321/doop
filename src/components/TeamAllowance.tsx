@@ -3,6 +3,7 @@ import { api, ApiError } from '../lib/api'
 import type { Allowance } from '../lib/api'
 import { posthog } from '../lib/posthog'
 import { useStore } from '../lib/store'
+import { t, useI18n } from '../lib/i18n'
 import { navigate } from '../App'
 import { Button } from './ui/button'
 import { Modal, ModalActions, ModalLede, ModalTitle } from './ui/modal'
@@ -40,50 +41,56 @@ export function meterText(allowance: Allowance | null): string | null {
   if (allowance.byoModel) {
     const on =
       allowance.byoKind === 'gemini-cloud'
-        ? 'Gemini cloud connection'
+        ? t('allowance.geminiCloud')
         : allowance.byoKind === 'claude-local'
-          ? 'local Claude CLI'
+          ? t('allowance.claudeLocal')
           : allowance.byoKind === 'chatgpt' || !allowance.byoKind
-            ? 'ChatGPT'
-            : `${ACCOUNT_KIND_LABELS[allowance.byoKind]} key`
-    return `Doop Agent on your ${on}`
+            ? t('allowance.chatgpt')
+            : t('allowance.keyOn', { name: ACCOUNT_KIND_LABELS[allowance.byoKind] })
+    return t('allowance.doopAgentOn', { on })
   }
-  if (allowance.limit <= 0) return 'Connect a plan in Settings to use the Doop Agent'
+  if (allowance.limit <= 0) return t('allowance.connectInSettings')
   const left = Math.max(0, allowance.limit - allowance.used)
   return left === 0
-    ? 'Free Doop Agent tasks used up — connect ChatGPT to continue'
-    : `${left} of ${allowance.limit} free Doop Agent task${allowance.limit === 1 ? '' : 's'} left`
+    ? t('allowance.freeUsedUp')
+    : allowance.limit === 1
+      ? t('allowance.freeTasksLeftSingle', { limit: allowance.limit })
+      : t('allowance.freeTasksLeftMulti', { left, limit: allowance.limit })
 }
 
 export function MeterLine({ allowance }: { allowance: Allowance | null }) {
+  const { t } = useI18n()
   if (!allowance) return null
   /* their own account is behind the agent now — say so instead of counting,
      and say it even where there is no free tier to count (limit 0) */
   if (allowance.byoModel) {
+    const on =
+      allowance.byoKind === 'gemini-cloud'
+        ? t('allowance.geminiCloud')
+        : allowance.byoKind === 'claude-local'
+          ? t('allowance.claudeLocal')
+          : allowance.byoKind === 'chatgpt' || !allowance.byoKind
+            ? t('allowance.chatgpt')
+            : t('allowance.keyOn', { name: ACCOUNT_KIND_LABELS[allowance.byoKind] })
     return (
       <span className="text-[12px] text-success-ink">
-        Doop Agent on your{' '}
-        {allowance.byoKind === 'gemini-cloud'
-          ? 'Gemini cloud connection'
-          : allowance.byoKind === 'claude-local'
-            ? 'local Claude CLI'
-            : allowance.byoKind === 'chatgpt' || !allowance.byoKind
-              ? 'ChatGPT'
-              : `${ACCOUNT_KIND_LABELS[allowance.byoKind]} key`}
+        {t('allowance.doopAgentOn', { on })}
       </span>
     )
   }
   /* no free tier on this server: say what connecting gets them instead of
      counting tasks that don't exist */
   if (allowance.limit <= 0) {
-    return <span className="text-[12px] text-ink-faint">Connect a plan in Settings to use the Doop Agent</span>
+    return <span className="text-[12px] text-ink-faint">{t('allowance.connectInSettings')}</span>
   }
   const left = Math.max(0, allowance.limit - allowance.used)
   return (
     <span className={cn('text-[12px]', left === 0 ? 'text-accent-ink' : 'text-ink-faint')}>
       {left === 0
-        ? 'free Doop Agent tasks used up — connect ChatGPT to continue'
-        : `${left} of ${allowance.limit} free Doop Agent task${allowance.limit === 1 ? '' : 's'} left`}
+        ? t('allowance.freeUsedUp')
+        : allowance.limit === 1
+          ? t('allowance.freeTasksLeftSingle', { limit: allowance.limit })
+          : t('allowance.freeTasksLeftMulti', { left, limit: allowance.limit })}
     </span>
   )
 }
@@ -97,6 +104,7 @@ export function LimitWall({
   onClose: () => void
   onOpenConnect: () => void
 }) {
+  const { t } = useI18n()
   const { allowance } = useAllowance()
   /* "used up" only fits a server that granted free tasks in the first place;
      everywhere else (the default, limit 0) this wall IS the getting-started
@@ -109,20 +117,10 @@ export function LimitWall({
     <Modal size="lg" onClose={onClose}>
       <>
         <ModalTitle>
-          {hadFreeTier ? 'Your free Doop Agent tasks are used up' : 'Connect a plan to use the Doop Agent'}
+          {hadFreeTier ? t('allowance.wallUsedUpTitle') : t('allowance.wallConnectTitle')}
         </ModalTitle>
         <ModalLede>
-          {hadFreeTier ? (
-            <>
-              Those were on the house. Connect your <b>ChatGPT subscription</b> and the Doop Agent keeps working exactly
-              as it does now — same canvas, same agent, running on your plan instead of ours.
-            </>
-          ) : (
-            <>
-              The Doop Agent designs on your canvases using a subscription you already have. Connect <b>ChatGPT</b> once
-              and every task runs on your plan — nothing metered, no separate bill.
-            </>
-          )}
+          {hadFreeTier ? t('allowance.wallUsedUpLede') : t('allowance.wallConnectLede')}
         </ModalLede>
         {/* the connection itself is an account setting, so this hands off to
             Settings rather than carrying a second copy of the panel */}
@@ -135,7 +133,7 @@ export function LimitWall({
               navigate(`/settings?from=${encodeURIComponent(`/c/${canvasId}`)}`)
             }}
           >
-            Connect your plan
+            {t('allowance.connectYourPlan')}
           </Button>
         </ModalActions>
 
@@ -144,20 +142,19 @@ export function LimitWall({
             the setup steps here where they read like a fix for the queued card */}
         <div className="mt-5 border-t border-line pt-4">
           <p className="text-[12.5px] text-ink-faint">
-            Prefer to drive the canvas yourself from Claude Code, Codex, or another MCP client? That agent designs as
-            you prompt it — queued tasks stay with the Doop Agent.{' '}
+            {t('allowance.mcpAlternative')}
             <button
               type="button"
               className="font-semibold text-ink underline underline-offset-2"
               onClick={onOpenConnect}
             >
-              See how to connect it
+              {t('allowance.seeHowToConnect')}
             </button>
           </p>
         </div>
 
         <ModalActions>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{t('common.close')}</Button>
         </ModalActions>
       </>
     </Modal>

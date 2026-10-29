@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api, errorMessage } from '../lib/api'
 import { posthog } from '../lib/posthog'
 import { timeAgo } from '../lib/time'
+import { t, useI18n } from '../lib/i18n'
 import { WEBHOOK_EVENTS, WEBHOOK_EVENT_LABELS, type WebhookEventType, type WebhookInfo } from '../../shared/webhooks'
 import { ConfirmDialog } from './ui/alert-dialog'
 import { Button } from './ui/button'
@@ -23,15 +24,22 @@ function hostOf(url: string): string {
 /** The one-line health of a hook, phrased for a person. */
 function health(hook: WebhookInfo): { text: string; tone?: 'error' | 'success' } {
   if (!hook.enabled && hook.lastError?.startsWith('paused')) return { text: hook.lastError, tone: 'error' }
-  if (!hook.enabled) return { text: 'off — nothing is sent' }
-  if (!hook.lastAt) return { text: 'no deliveries yet — send a test' }
+  if (!hook.enabled) return { text: t('webhooks.healthOff') }
+  if (!hook.lastAt) return { text: t('webhooks.healthNoDeliveries') }
   if (hook.failures) {
     return {
-      text: `${hook.failures} failed in a row · last ${timeAgo(hook.lastAt)}: ${hook.lastError ?? 'failed'}`,
+      text: t('webhooks.healthFailed', {
+        count: hook.failures,
+        time: timeAgo(hook.lastAt),
+        error: hook.lastError ?? 'failed',
+      }),
       tone: 'error',
     }
   }
-  return { text: `delivered ${timeAgo(hook.lastAt)} (HTTP ${hook.lastStatus})`, tone: 'success' }
+  return {
+    text: t('webhooks.healthDelivered', { time: timeAgo(hook.lastAt), status: hook.lastStatus ?? '' }),
+    tone: 'success',
+  }
 }
 
 /** Picks events with the shared labels; used for the new-hook form. */
@@ -62,6 +70,7 @@ function EventPicker({ value, onChange }: { value: WebhookEventType[]; onChange:
  *  to, see whether they answer, rotate their secrets. The secret appears once,
  *  on creation or rotation — the list never carries it. */
 export function Webhooks() {
+  const { t } = useI18n()
   const [hooks, setHooks] = useState<WebhookInfo[] | null>(null)
   const [url, setUrl] = useState('')
   const [events, setEvents] = useState<WebhookEventType[]>([...WEBHOOK_EVENTS])
@@ -122,8 +131,8 @@ export function Webhooks() {
         setRowNote((n) => ({
           ...n,
           [hook.id]: result.ok
-            ? { text: `ping answered with HTTP ${result.status}`, tone: 'success' }
-            : { text: `ping failed: ${result.error ?? 'no response'}`, tone: 'error' },
+            ? { text: t('webhooks.pingSuccess', { status: result.status ?? '' }), tone: 'success' }
+            : { text: t('webhooks.pingFailed', { error: result.error ?? 'no response' }), tone: 'error' },
         }))
         const fresh = await api.listWebhooks()
         setHooks(fresh)
@@ -164,21 +173,17 @@ export function Webhooks() {
   return (
     <SettingsCard>
       <CardHeader>
-        <CardTitle>Webhooks</CardTitle>
+        <CardTitle>{t('webhooks.title')}</CardTitle>
         <CardDescription>
-          doop POSTs a signed JSON event to each URL below when something happens on a canvas you own, were invited to,
-          or that lives in one of your workspaces — route it to Slack, n8n, an issue tracker, anything with an HTTP
-          endpoint. Each delivery carries an <code className="font-mono text-label">X-Doop-Signature</code> header
-          (HMAC-SHA256 with the webhook’s secret) so the receiver can trust it. Failed deliveries are retried three
-          times; a hook that keeps failing pauses itself.
+          {t('webhooks.desc')}
         </CardDescription>
       </CardHeader>
 
       <CardRow
-        label="New webhook"
+        label={t('webhooks.newWebhook')}
         action={
           <Button size="sm" disabled={saving || hooks === null || !url.trim() || !events.length} onClick={create}>
-            {saving ? 'Adding…' : 'Add webhook'}
+            {saving ? t('webhooks.adding') : t('webhooks.addWebhook')}
           </Button>
         }
         controlWidth="lg"
@@ -191,7 +196,7 @@ export function Webhooks() {
             }}
             placeholder="https://hooks.example.com/doop"
             inputMode="url"
-            aria-label="Webhook URL"
+            aria-label={t('webhooks.urlAria')}
           />
         }
       >
@@ -203,13 +208,12 @@ export function Webhooks() {
       </CardRow>
 
       {secret && (
-        <CardRow label="Signing secret">
+        <CardRow label={t('webhooks.signingSecret')}>
           <div className="min-w-0 flex-1">
-            <Note tone="success">Copy it now — it is shown once. Verify deliveries with it on your side.</Note>
+            <Note tone="success">{t('webhooks.signingSecretNotice')}</Note>
             <CodeBlock className="mt-2" text={secret.secret} />
             <Note>
-              signature = “sha256=” + HMAC-SHA256(secret, X-Doop-Timestamp + “.” + raw body). The docs have a ready-made
-              check.
+              {t('webhooks.signingSecretCalc')}
             </Note>
           </div>
         </CardRow>
@@ -224,7 +228,7 @@ export function Webhooks() {
             action={
               <div className="flex flex-wrap items-center gap-1">
                 <Button size="sm" variant="ghost" disabled={busy === hook.id} onClick={() => void test(hook)}>
-                  Send test
+                  {t('webhooks.sendTest')}
                 </Button>
                 <Button
                   size="sm"
@@ -232,19 +236,19 @@ export function Webhooks() {
                   disabled={busy === hook.id}
                   onClick={() => setConfirming({ kind: 'rotate', hook })}
                 >
-                  Rotate secret
+                  {t('webhooks.rotateSecret')}
                 </Button>
                 <Button size="sm" variant="ghost" disabled={busy === hook.id} onClick={() => void toggle(hook)}>
-                  {hook.enabled ? 'Turn off' : 'Turn on'}
+                  {hook.enabled ? t('webhooks.turnOff') : t('webhooks.turnOn')}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   disabled={busy === hook.id}
-                  aria-label={`Remove webhook for ${hostOf(hook.url)}`}
+                  aria-label={t('webhooks.removeAria', { host: hostOf(hook.url) })}
                   onClick={() => setConfirming({ kind: 'remove', hook })}
                 >
-                  <TrashIcon /> Remove
+                  <TrashIcon /> {t('common.remove')}
                 </Button>
               </div>
             }
@@ -260,8 +264,8 @@ export function Webhooks() {
         )
       })}
       {hooks && hooks.length === 0 && !secret && (
-        <CardRow label="No webhooks yet">
-          <Note>Add one above — a quick way to try it is an n8n Webhook node or a request bin.</Note>
+        <CardRow label={t('webhooks.noWebhooksYet')}>
+          <Note>{t('webhooks.noWebhooksDesc')}</Note>
         </CardRow>
       )}
       <ConfirmDialog
@@ -269,13 +273,13 @@ export function Webhooks() {
         onOpenChange={(open) => !open && setConfirming(null)}
         title={
           confirming?.kind === 'rotate'
-            ? `Rotate the secret for ${confirming ? hostOf(confirming.hook.url) : ''}?`
-            : `Remove the webhook for ${confirming ? hostOf(confirming.hook.url) : ''}?`
+            ? t('webhooks.confirmRotateTitle', { host: confirming ? hostOf(confirming.hook.url) : '' })
+            : t('webhooks.confirmRemoveTitle', { host: confirming ? hostOf(confirming.hook.url) : '' })
         }
         description={
-          confirming?.kind === 'rotate' ? 'Deliveries signed with the old secret stop verifying.' : undefined
+          confirming?.kind === 'rotate' ? t('webhooks.confirmRotateDesc') : undefined
         }
-        confirmLabel={confirming?.kind === 'rotate' ? 'Rotate secret' : 'Remove webhook'}
+        confirmLabel={confirming?.kind === 'rotate' ? t('webhooks.confirmRotateAction') : t('webhooks.confirmRemoveAction')}
         destructive
         onConfirm={() => {
           const target = confirming

@@ -3,6 +3,7 @@ import type { Frame } from '../../shared/types'
 import { readingOrder } from '../../shared/frameOrder'
 import { downloadFramesPdf } from '../lib/frameExport'
 import { posthog } from '../lib/posthog'
+import { useI18n } from '../lib/i18n'
 import { ImportStepHeader } from './ImportSources'
 import { Button } from './ui/button'
 import { FrameThumb } from './FramePreview'
@@ -29,6 +30,7 @@ export function ExportModal({
   initialSelection: string[]
   onClose: () => void
 }) {
+  const { t } = useI18n()
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(initialSelection.length ? initialSelection : frames.map((frame) => frame.id)),
   )
@@ -57,11 +59,11 @@ export function ExportModal({
   if (!frames.length) {
     return (
       <Modal size="sm" onClose={onClose}>
-        <ModalTitle>Nothing to export yet</ModalTitle>
-        <ModalLede>Add a frame to this page first.</ModalLede>
+        <ModalTitle>{t('export.nothingToExport')}</ModalTitle>
+        <ModalLede>{t('export.addFrameFirst')}</ModalLede>
         <ModalActions>
           <Button variant="ghost" onClick={onClose}>
-            Close
+            {t('common.close')}
           </Button>
         </ModalActions>
       </Modal>
@@ -70,10 +72,9 @@ export function ExportModal({
 
   return (
     <Modal size="xl" className="sm:max-w-[820px]" onClose={onClose}>
-      <ImportStepHeader icon={<PdfIcon size={22} />} title="Export as PDF" />
+      <ImportStepHeader icon={<PdfIcon size={22} />} title={t('export.exportAsPdf')} />
       <ModalLede>
-        The frames you check become one PDF, a vector page per frame at its own size, in the order below: top to bottom,
-        then left to right on the canvas.
+        {t('export.pdfLede')}
       </ModalLede>
       <SelectionBar
         className="mt-5"
@@ -82,16 +83,16 @@ export function ExportModal({
         actions={
           <>
             <SelectionBarAction onClick={() => setSelected(new Set(frames.map((frame) => frame.id)))}>
-              Select all
+              {t('export.selectAll')}
             </SelectionBarAction>
-            <SelectionBarAction onClick={() => setSelected(new Set())}>Clear</SelectionBarAction>
+            <SelectionBarAction onClick={() => setSelected(new Set())}>{t('export.clear')}</SelectionBarAction>
           </>
         }
       />
       <div
         className="max-h-[calc(100dvh-390px)] overflow-y-auto rounded-[11px] border border-line bg-paper sm:max-h-[min(350px,calc(100vh-390px))]"
         role="group"
-        aria-label="Frames to export"
+        aria-label={t('export.framesToExport')}
       >
         {listed.map((frame, index) => (
           <label
@@ -103,7 +104,7 @@ export function ExportModal({
             <FrameThumb frameId={frame.id} />
             <span className="min-w-0">
               <b className="block overflow-hidden whitespace-nowrap text-ellipsis text-[12.5px] text-ink">
-                {frame.name || 'Untitled frame'}
+                {frame.name || t('export.untitledFrame')}
               </b>
               <span className="mt-[3px] block font-mono text-[10px] text-ink-faint">
                 {Math.round(frame.width)} × {Math.round(frame.height)}
@@ -114,13 +115,13 @@ export function ExportModal({
       </div>
       <div className="mt-6 flex items-center gap-2.5 border-t border-line-soft pt-[18px]">
         <span className="mr-auto min-w-0 text-label leading-[1.4] text-ink-faint">
-          Text stays selectable. A long document can take a few seconds per page.
+          {t('export.pdfHint')}
         </span>
         <Button variant="ghost" className="flex-none" onClick={onClose}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button variant="primary" disabled={!chosen.length} onClick={run}>
-          {chosen.length > 1 ? `Download PDF (${chosen.length} pages)` : 'Download PDF'}
+          {chosen.length > 1 ? t('export.downloadPdfWithCount', { count: chosen.length }) : t('export.downloadPdf')}
         </Button>
       </div>
     </Modal>
