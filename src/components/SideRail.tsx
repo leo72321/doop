@@ -9,6 +9,7 @@ import { BookOpenIcon, CommentIcon, GearIcon, HelpIcon, PulseIcon, SlidersIcon, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { openSupportChat } from '../lib/posthog'
 import { PresenceFace } from './PeerAvatars'
+import { useI18n } from '../lib/i18n'
 
 const island = 'pointer-events-auto absolute z-[38]'
 
@@ -40,6 +41,7 @@ export function SideRail({
   onRenameSelf: () => void
 }) {
   const setPanelTab = useStore((s) => s.setPanelTab)
+  const { t } = useI18n()
   const openTab = (tab: PanelTab) => {
     setPanelTab(tab)
     onToggleAgents()
@@ -51,21 +53,21 @@ export function SideRail({
       {(showInspector || !agentsOpen) && (
         <Toolbar aria-label="Canvas panels" orientation="vertical" className={cn(island, 'top-2.5')} style={style}>
           {showInspector && (
-            <ToolbarControl label="Inspect frame" onClick={onToggleInspector}>
+            <ToolbarControl label={t('rail.inspectFrame')} onClick={onToggleInspector}>
               <SlidersIcon />
             </ToolbarControl>
           )}
           {!agentsOpen && <PanelTabButtons onOpen={openTab} />}
         </Toolbar>
       )}
-      <Toolbar aria-label="Account" orientation="vertical" className={cn(island, 'bottom-3.5 gap-1.5')} style={style}>
-        <ToolbarControl label="Settings" onClick={() => navigate('/settings')}>
+      <Toolbar aria-label={t('rail.account')} orientation="vertical" className={cn(island, 'bottom-3.5 gap-1.5')} style={style}>
+        <ToolbarControl label={t('rail.settings')} onClick={() => navigate('/settings')}>
           <GearIcon />
         </ToolbarControl>
         <DropdownMenu>
-          <Tooltip label="Help" side="left">
+          <Tooltip label={t('rail.help')} side="left">
             <DropdownMenuTrigger asChild>
-              <ToolbarButton aria-label="Help" className="data-[state=open]:bg-paper-deep data-[state=open]:text-ink">
+              <ToolbarButton aria-label={t('rail.help')} className="data-[state=open]:bg-paper-deep data-[state=open]:text-ink">
                 <HelpIcon />
               </ToolbarButton>
             </DropdownMenuTrigger>
@@ -73,18 +75,18 @@ export function SideRail({
           <DropdownMenuContent side="left" align="end" width="sm">
             <DropdownMenuItem asChild>
               <a href="/docs" target="_blank" rel="noopener noreferrer">
-                <BookOpenIcon /> Docs
+                <BookOpenIcon /> {t('rail.docs')}
               </a>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => openSupportChat()}>
-              <CommentIcon /> Contact support
+              <CommentIcon /> {t('rail.contactSupport')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Tooltip label={`You are “${me.name}” — click to change your name`} side="left">
+        <Tooltip label={t('rail.youAre', { name: me.name })} side="left">
           <button
             type="button"
-            aria-label="Change your display name"
+            aria-label={t('rail.changeDisplayName')}
             className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint"
             onClick={onRenameSelf}
           >
@@ -107,6 +109,7 @@ export function PanelTabButtons({
   onOpen: (tab: PanelTab) => void
   tooltipSide?: 'left' | 'bottom'
 }) {
+  const { t } = useI18n()
   const working = useStore((s) => s.tasks.filter((t) => t.agentName && !t.endedAt && !t.failedAt).length)
   const proposalPending = useStore((s) => s.proposals.some((p) => p.status === 'pending'))
   const openThreads = useOpenThreadCount()
@@ -114,7 +117,7 @@ export function PanelTabButtons({
     <>
       <ToolbarControl
         side={tooltipSide}
-        label={working ? `Agents · ${working} working · ⌘K to ask the Doop Agent` : 'Agents · ⌘K to ask the Doop Agent'}
+        label={working ? t('rail.agentsWorking', { count: working }) : t('rail.agentsIdle')}
         onClick={() => onOpen('tasks')}
       >
         <SparkIcon />
@@ -122,18 +125,18 @@ export function PanelTabButtons({
       </ToolbarControl>
       <ToolbarControl
         side={tooltipSide}
-        label={openThreads ? `Comments · ${openThreads} open` : 'Comments'}
+        label={openThreads ? t('rail.commentsWithCount', { count: openThreads }) : t('rail.comments')}
         onClick={() => onOpen('comments')}
       >
         <CommentIcon />
         {openThreads > 0 && <ToolbarDot className="bg-brand" />}
       </ToolbarControl>
-      <ToolbarControl side={tooltipSide} label="Activity" onClick={() => onOpen('activity')}>
+      <ToolbarControl side={tooltipSide} label={t('rail.activity')} onClick={() => onOpen('activity')}>
         <PulseIcon />
       </ToolbarControl>
       <ToolbarControl
         side={tooltipSide}
-        label={proposalPending ? 'Memory · suggestion to review' : 'Memory'}
+        label={proposalPending ? t('rail.memorySuggestion') : t('rail.memory')}
         onClick={() => onOpen('memory')}
       >
         <BookOpenIcon />

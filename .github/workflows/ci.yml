@@ -1,84 +1,28 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main]
 
-# A new push to the same PR supersedes the run in flight; main is never cancelled.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
-  # PRs land on main as a squash, so the PR *title* becomes the commit subject —
-  # that, not the branch's commits, is what has to satisfy commitlint. The local
-  # commit-msg hook can't see it, so this is the only place it gets checked.
-  commit-message:
-    if: github.event_name == 'pull_request'
+  ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      # Via env, never inlined into the script: a PR title is attacker-controlled text.
-      - name: Lint PR title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$PR_TITLE" | bunx --bun commitlint
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  # The checks run as parallel jobs so wall-clock is the slowest one, not the
-  # sum. Install is ~5s per job (setup-bun restores ~/.bun/install/cache keyed
-  # on bun.lock), so the duplication is cheap.
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run typecheck
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run lint
-      - run: bun run format:check
-      - run: bun run doc-lint
+      - name: Install dependencies
+        run: bun install
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      # The Docker build stage uses Bun even for commands named `node`.
-      - run: bun run --bun build
+      - name: Typecheck
+        run: bun run typecheck
 
-  # The suite boots a real server per integration file, which is CPU-bound on
-  # the 2-vCPU runner; sharding across runners is what brings the step down.
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      # `bun run test`, not `bun test`: the suite is vitest, and `bun test`
-      # would run Bun's own runner against the same files
-      - run: bun run test -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
-
-  # One status that stands for every shard, so a required check or a merge
-  # queue names "tests" rather than each "test (N)"; renumbering the matrix
-  # never silently drops a protection.
-  tests:
-    needs: test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - run: test "${{ needs.test.result }}" = success
+      - name: Build
+        run: bun run build

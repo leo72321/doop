@@ -2,11 +2,17 @@
    tool, on what it landed on, and on a few modifiers. Resolved here, in one
    place, so the Stage (background) and FrameView (frames) agree on it. */
 
+import { t, type TranslationKey } from './i18n'
+
 export type DrawingTool = 'rectangle' | 'circle' | 'path' | 'text' | 'frame'
 export type Tool = 'select' | 'hand' | 'comment' | DrawingTool
 
 export function isDrawingTool(tool: Tool): tool is DrawingTool {
   return tool === 'rectangle' || tool === 'circle' || tool === 'path' || tool === 'text' || tool === 'frame'
+}
+
+export function toolLabel(tool: Tool): string {
+  return t(`tools.${tool}` as TranslationKey)
 }
 
 export const TOOLS: { id: Tool; label: string; key: string }[] = [

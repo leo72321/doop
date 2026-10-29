@@ -34,6 +34,7 @@ import { TOOLS, isDrawingTool, resolvePointerAction, toolForKey, type Tool } fro
 import { useCanvasDrawing } from './CanvasDrawing'
 import { FrameLabelLayer } from './FrameLabelLayer'
 import { layoutZoomFor } from '../lib/layoutZoom'
+import { useI18n, type TranslationKey } from '../lib/i18n'
 
 const MIN_ZOOM = 0.08
 /* The settled world is laid out at up to this zoom too (layoutZoomFor), so
@@ -126,6 +127,7 @@ export function Stage({
   rightInset: number
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const { t } = useI18n()
   const drawing = useCanvasDrawing(ref)
   const worldRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -984,31 +986,34 @@ export function Stage({
                     disabled={!drawing.canFinishPath}
                     onClick={drawing.finish}
                   >
-                    Finish path
+                    {t('stage.finishPath')}
                   </button>
                   <button type="button" onClick={drawing.cancel}>
-                    Cancel
+                    {t('stage.cancel')}
                   </button>
                 </>
               )}
             </div>
           )}
-          <Toolbar aria-label="Canvas tools" className="md:w-10 md:flex-col">
+          <Toolbar aria-label={t('stage.canvasTools')} className="md:w-10 md:flex-col">
             {/* one fill slides between tools; the buttons themselves stay
                 transparent so the pill is the only thing that moves */}
             <ToolbarHighlight activeKey={tool} />
-            {TOOLS.filter((t) => toolAllowed(t.id, role)).map((t) => (
-              <Tooltip key={t.id} label={`${t.label} (${t.key})`} side="right">
-                <ToolbarButton
-                  aria-label={t.label}
-                  aria-pressed={tool === t.id}
-                  className="relative z-[1] hover:bg-transparent aria-pressed:text-ink"
-                  onClick={() => setTool(t.id)}
-                >
-                  {TOOL_ICONS[t.id]}
-                </ToolbarButton>
-              </Tooltip>
-            ))}
+            {TOOLS.filter((item) => toolAllowed(item.id, role)).map((item) => {
+              const label = t(`tools.${item.id}` as TranslationKey) || item.label
+              return (
+                <Tooltip key={item.id} label={`${label} (${item.key})`} side="right">
+                  <ToolbarButton
+                    aria-label={label}
+                    aria-pressed={tool === item.id}
+                    className="relative z-[1] hover:bg-transparent aria-pressed:text-ink"
+                    onClick={() => setTool(item.id)}
+                  >
+                    {TOOL_ICONS[item.id]}
+                  </ToolbarButton>
+                </Tooltip>
+              )
+            })}
           </Toolbar>
         </div>
 
@@ -1028,10 +1033,10 @@ export function Stage({
               disabled={!hasFrameClip()}
               onSelect={() => pasteFrameAtScreen(canvas.id, bgAt.current.x, bgAt.current.y)}
             >
-              Paste
+              {t('stage.paste')}
               <MenuHint>{MOD_KEY}V</MenuHint>
             </ContextMenuItem>
-            <ContextMenuItem onSelect={onAddFrame}>New frame</ContextMenuItem>
+            <ContextMenuItem onSelect={onAddFrame}>{t('stage.newFrame')}</ContextMenuItem>
           </ContextMenuContent>
         )}
       </ContextMenu>

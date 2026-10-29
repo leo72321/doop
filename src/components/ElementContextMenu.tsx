@@ -6,6 +6,7 @@ import { elementHtml, isElementHidden, isElementLocked } from '../lib/layers'
 import { MOD_KEY } from '../lib/keys'
 import { ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from './ui/context-menu'
 import { MenuHint } from './ui/menu'
+import { useI18n } from '../lib/i18n'
 
 /** Shared by a layer row and the element under a canvas right-click. */
 export function ElementContextMenu({ frame, selector }: { frame: Frame; selector: string | null }) {
@@ -19,6 +20,7 @@ export function ElementContextMenu({ frame, selector }: { frame: Frame; selector
 /** Radix mounts these children only while the menu is open. Closed layer
  *  rows must not parse their frame HTML just to render a dormant menu. */
 function ElementMenuItems({ frame, selector }: { frame: Frame; selector: string | null }) {
+  const { t } = useI18n()
   const hidden = selector ? isElementHidden(frame.html, selector) : null
   const exists = hidden !== null
   const ownLock = selector ? isElementLocked(frame.html, selector, true) : false
@@ -26,24 +28,24 @@ function ElementMenuItems({ frame, selector }: { frame: Frame; selector: string 
   return (
     <>
       <ContextMenuItem disabled={!exists} onSelect={() => selector && copyLayer(frame, selector)}>
-        Copy
+        {t('menu.copy')}
         <MenuHint>{MOD_KEY}C</MenuHint>
       </ContextMenuItem>
       <ContextMenuItem
         disabled={locked || !hasElementClip() || (!!selector && !exists)}
         onSelect={() => pasteLayer(frame, selector)}
       >
-        Paste
+        {t('menu.paste')}
         <MenuHint>{MOD_KEY}V</MenuHint>
       </ContextMenuItem>
       {selector && exists && (
         <>
           <ContextMenuItem disabled={locked} onSelect={() => duplicateLayer(frame, selector)}>
-            Duplicate
+            {t('menu.duplicate')}
             <MenuHint>{MOD_KEY}D</MenuHint>
           </ContextMenuItem>
           <ContextMenuItem disabled={!!frame.locked} onSelect={() => setLayerHidden(frame, selector, !hidden)}>
-            {hidden ? 'Show' : 'Hide'}
+            {hidden ? t('menu.show') : t('menu.hide')}
             <MenuHint>{MOD_KEY}⇧H</MenuHint>
           </ContextMenuItem>
           <ContextMenuSeparator />
@@ -53,29 +55,29 @@ function ElementMenuItems({ frame, selector }: { frame: Frame; selector: string 
               if (html) navigator.clipboard.writeText(html).catch(console.error)
             }}
           >
-            Copy HTML
+            {t('menu.copyHtml')}
           </ContextMenuItem>
           <ContextMenuItem onSelect={() => navigator.clipboard.writeText(selector).catch(console.error)}>
-            Copy selector
+            {t('menu.copySelector')}
           </ContextMenuItem>
-          <ContextMenuItem onSelect={() => void copyElementLink(frame, selector)}>Copy link to element</ContextMenuItem>
+          <ContextMenuItem onSelect={() => void copyElementLink(frame, selector)}>{t('menu.copyLinkToElement')}</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem disabled={locked} onSelect={() => shiftLayer(frame, selector, -1)}>
-            Move up
+            {t('menu.moveUp')}
             <MenuHint>⌥↑</MenuHint>
           </ContextMenuItem>
           <ContextMenuItem disabled={locked} onSelect={() => shiftLayer(frame, selector, 1)}>
-            Move down
+            {t('menu.moveDown')}
             <MenuHint>⌥↓</MenuHint>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem disabled={!!frame.locked} onSelect={() => setLayerLocked(frame, selector, !ownLock)}>
-            {ownLock ? 'Unlock' : 'Lock'}
+            {ownLock ? t('menu.unlock') : t('menu.lock')}
             <MenuHint>{MOD_KEY}⇧L</MenuHint>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem tone="danger" disabled={locked} onSelect={() => deleteLayer(frame, selector)}>
-            Delete element
+            {t('menu.deleteElement')}
             <MenuHint>⌫</MenuHint>
           </ContextMenuItem>
         </>

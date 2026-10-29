@@ -15,6 +15,7 @@ import { ArrowRightIcon } from '../components/ui/icons'
 import { Input } from '../components/ui/input'
 import { Field } from '../components/ui/field'
 import { Callout } from '../components/ui/callout'
+import { useI18n } from '../lib/i18n'
 
 /* If login interrupted an MCP OAuth authorize redirect, send the browser
    back into the flow so the agent connection completes. */
@@ -177,6 +178,7 @@ function useOidcConfig(): OidcClientConfig {
 let browserSignInNotice: string | null = null
 
 export function AuthPage() {
+  const { t } = useI18n()
   const oidc = useOidcConfig()
   /* better-auth lands password-reset links on /auth/reset?token=… */
   const resetToken = location.pathname === '/auth/reset' ? new URLSearchParams(location.search).get('token') : null
@@ -328,9 +330,16 @@ export function AuthPage() {
     }
   }
 
+  const titles: Record<AuthMode, string> = {
+    signin: t('auth.welcomeBack'),
+    signup: t('auth.createAccount'),
+    forgot: t('auth.resetPassword'),
+    reset: t('auth.pickNewPassword'),
+  }
+
   return (
     <AuthScreen>
-      <AuthCard as="form" title={TITLES[mode]} onSubmit={submit}>
+      <AuthCard as="form" title={titles[mode]} onSubmit={submit}>
         <AuthCardText className="mb-2">
           {mode === 'forgot' ? (
             <>Enter your account email and we&rsquo;ll send you a reset link.</>
@@ -356,7 +365,7 @@ export function AuthPage() {
                 disabled={busy}
               >
                 <GoogleMark />
-                {mode === 'signup' ? 'Sign up' : 'Sign in'} with Google
+                {mode === 'signup' ? t('auth.signUp') : t('auth.signIn')} with Google
               </Button>
             )}
             {oidc.microsoft && (
@@ -370,7 +379,7 @@ export function AuthPage() {
                 disabled={busy}
               >
                 <MicrosoftMark />
-                {mode === 'signup' ? 'Sign up' : 'Sign in'} with Microsoft
+                {mode === 'signup' ? t('auth.signUp') : t('auth.signIn')} with Microsoft
               </Button>
             )}
             {oidc.apple && (
@@ -384,7 +393,7 @@ export function AuthPage() {
                 disabled={busy}
               >
                 <AppleMark />
-                {mode === 'signup' ? 'Sign up' : 'Sign in'} with Apple
+                {mode === 'signup' ? t('auth.signUp') : t('auth.signIn')} with Apple
               </Button>
             )}
             {oidc.enabled && (
@@ -397,7 +406,7 @@ export function AuthPage() {
                 onClick={ssoSignIn}
                 disabled={busy}
               >
-                {mode === 'signup' ? 'Sign up' : 'Sign in'} with {oidc.displayName}
+                {mode === 'signup' ? t('auth.signUp') : t('auth.signIn')} with {oidc.displayName}
               </Button>
             )}
             <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-ink-faint">
@@ -408,7 +417,7 @@ export function AuthPage() {
           </>
         )}
         {mode === 'signup' && (
-          <Field label="Name" labelVariant="form">
+          <Field label={t('auth.name')} labelVariant="form">
             <Input
               variant="well"
               value={name}
@@ -419,7 +428,7 @@ export function AuthPage() {
           </Field>
         )}
         {mode !== 'reset' && (
-          <Field label="Email" labelVariant="form">
+          <Field label={t('auth.email')} labelVariant="form">
             <Input
               variant="well"
               type="email"
@@ -432,7 +441,7 @@ export function AuthPage() {
           </Field>
         )}
         {mode !== 'forgot' && (
-          <Field label={mode === 'reset' ? 'New password' : 'Password'} labelVariant="form">
+          <Field label={mode === 'reset' ? t('auth.newPassword') : t('auth.password')} labelVariant="form">
             <Input
               variant="well"
               type="password"
@@ -440,7 +449,7 @@ export function AuthPage() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={mode === 'signin' ? '••••••••' : 'At least 8 characters'}
+              placeholder={mode === 'signin' ? '••••••••' : t('auth.passwordTooShort')}
               autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
             />
           </Field>
@@ -452,7 +461,7 @@ export function AuthPage() {
             className="-mt-1.5 self-end font-normal text-ink-faint hover:text-ink"
             onClick={() => switchMode('forgot')}
           >
-            Forgot password?
+            {t('auth.forgotPassword')}
           </Button>
         )}
         {notice && <Callout>{notice}</Callout>}
@@ -488,12 +497,12 @@ export function AuthPage() {
           {busy
             ? '…'
             : mode === 'signin'
-              ? 'Sign in'
+              ? t('auth.signIn')
               : mode === 'signup'
-                ? 'Sign up'
+                ? t('auth.signUp')
                 : mode === 'forgot'
-                  ? 'Send reset link'
-                  : 'Set new password'}
+                  ? t('auth.sendResetLink')
+                  : t('auth.pickNewPassword')}
         </Button>
         <Button
           variant="link"
@@ -501,7 +510,7 @@ export function AuthPage() {
           className="p-1.5 text-[13px] font-normal text-ink-faint hover:text-ink"
           onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
         >
-          {mode === 'signin' ? 'No account yet? Sign up' : 'Have an account? Sign in'}
+          {mode === 'signin' ? t('auth.dontHaveAccount') : t('auth.alreadyHaveAccount')}
         </Button>
       </AuthCard>
     </AuthScreen>
