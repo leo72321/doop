@@ -544,12 +544,12 @@ function BillingPane({
             <>
               {!ws.active || !paid ? (
                 <Button variant="primary" onClick={onUpgrade}>
-                  {ws.status === 'canceled' ? 'Reactivate on Team' : 'Choose a plan'}
+                  {ws.status === 'canceled' ? t('workspace.reactivate') : t('workspace.choosePlan')}
                 </Button>
               ) : null}
               {ws.billing.portal && (
                 <Button onClick={portal} disabled={busy}>
-                  {busy ? 'Opening…' : '{t('workspace.openStripePortal')}'}
+                  {busy ? 'Opening…' : t('workspace.openStripePortal')}
                 </Button>
               )}
               {ws.billing.portal && (
