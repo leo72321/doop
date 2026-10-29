@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.11.0](https://github.com/leo72321/doop/compare/v0.10.0...v0.11.0) (2026-10-29)
+
+
+### Features
+
+* **desktop:** follow new Claude models by alias, and pick the effort ([#251](https://github.com/leo72321/doop/issues/251)) ([bfcec7d](https://github.com/leo72321/doop/commit/bfcec7d318cf03df440a852844fd0033a05e5e47))
+* **i18n:** complete full zh-TW localization across all modals, home hero, and settings ([4d064a6](https://github.com/leo72321/doop/commit/4d064a68cb7f13eeacf5b9539d5faf8fa68e1e35))
+* **i18n:** complete full zh-TW localization for modals, home hero, and settings ([2cd2528](https://github.com/leo72321/doop/commit/2cd2528fb5bc47b99dc0fb5b51b53bef1fd09d45))
+* **i18n:** complete systemic internationalization across all UI components and pages ([54e31dd](https://github.com/leo72321/doop/commit/54e31dd2c027d20fe12882d6a4cdafa211e4e25f))
+* **i18n:** complete systemic internationalization across UI components ([dc3b0ba](https://github.com/leo72321/doop/commit/dc3b0ba464d5cc51867ced2d376672c3d9d60b3e))
+* **i18n:** implement zh-TW localization and CI/GHCR workflows ([38bb220](https://github.com/leo72321/doop/commit/38bb220a5612b5f0895ba2a686b080f485f98485))
+* **i18n:** implement zh-TW localization and CI/GHCR workflows ([7d990ee](https://github.com/leo72321/doop/commit/7d990ee1b4df788a455f64e03468b97164dc4661))
+* **i18n:** localize templates, seed canvas, automations, and agent prompts to Traditional Chinese ([6ff5e60](https://github.com/leo72321/doop/commit/6ff5e60417da53f3b88cf055ffd9930f12ee2e06))
+* **i18n:** localize templates, seed canvas, automations, and agent prompts to Traditional Chinese ([3574cc8](https://github.com/leo72321/doop/commit/3574cc84445ff15760c85d8c6134516632341e17))
+* **ios:** move page picker and frame count into the canvas actions menu ([#248](https://github.com/leo72321/doop/issues/248)) ([21ddd8c](https://github.com/leo72321/doop/commit/21ddd8c7f79780550aaa7f7d48d02416f81969dc))
+* **models:** discover ChatGPT subscription models from the Codex catalog ([#250](https://github.com/leo72321/doop/issues/250)) ([ad028ab](https://github.com/leo72321/doop/commit/ad028ab9ae2a0e2bd26c3f2718361e32d48e2b58))
+* **models:** let users pick the OpenAI reasoning effort ([#246](https://github.com/leo72321/doop/issues/246)) ([b28219a](https://github.com/leo72321/doop/commit/b28219a779169b53303aec48e8cd45c0e555e042))
+
+
+### Bug Fixes
+
+* **desktop:** run the newest Claude Code found, and say when it is too old ([#254](https://github.com/leo72321/doop/issues/254)) ([ba7b602](https://github.com/leo72321/doop/commit/ba7b6025450fc77b0390e50f145ee8ea67a090f8))
+* **i18n:** fix syntax error in Workspace.tsx billing portal button ([9d0e8d2](https://github.com/leo72321/doop/commit/9d0e8d2921792ad4be0ff2e74da05126a64b9a47))
+* **i18n:** import t at module level to resolve scope in subcomponents ([9f55b75](https://github.com/leo72321/doop/commit/9f55b756c3bb9028fa05a2f2dbbe66add831fc89))
+* **ui:** draw icons from the Lucide set instead of text glyphs ([#244](https://github.com/leo72321/doop/issues/244)) ([6dedda8](https://github.com/leo72321/doop/commit/6dedda83b049626004a4f1db10dc7671d9d2d606))
+
+
+### Documentation
+
+* **readme:** bring the README up to date with the open-source build ([#258](https://github.com/leo72321/doop/issues/258)) ([a9659ae](https://github.com/leo72321/doop/commit/a9659ae76d39511ad5c959fdbb3c42ab3e80bbbe))
+* **readme:** list all 40 MCP tools, prototype tools included ([#256](https://github.com/leo72321/doop/issues/256)) ([d261a85](https://github.com/leo72321/doop/commit/d261a85d3f9d87ac0653bb8512915f4e5bdff2b9))
+
 ## [0.10.0](https://github.com/kgoedecke/doop/compare/v0.9.0...v0.10.0) (2026-10-26)
 
 
