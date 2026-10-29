@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import type { CanvasMeta } from '../../shared/types'
 import { cn } from '@/lib/utils'
+import { useI18n } from '../lib/i18n'
 import { timeAgo } from '../lib/time'
 import { FrameThumb } from './FramePreview'
 import { Modal } from './ui/modal'
@@ -24,6 +25,7 @@ export function CanvasSearchModal({
   onOpen: (canvas: CanvasMeta) => void
   onClose: () => void
 }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [cursor, setCursor] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -55,7 +57,7 @@ export function CanvasSearchModal({
   }
 
   return (
-    <Modal size="lg" onClose={onClose} className="p-0 sm:p-0" aria-label="Search canvases">
+    <Modal size="lg" onClose={onClose} className="p-0 sm:p-0" aria-label={t('search.searchCanvasesPlaceholder')}>
       <SearchField
         ref={inputRef}
         variant="bar"
@@ -65,13 +67,13 @@ export function CanvasSearchModal({
           setCursor(0)
         }}
         onKeyDown={onKeyDown}
-        placeholder="Search canvases"
-        aria-label="Search canvases"
+        placeholder={t('search.searchCanvasesPlaceholder')}
+        aria-label={t('search.searchCanvasesPlaceholder')}
         inputClassName="text-copy md:text-copy"
       />
-      <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label="Results">
+      <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label={t('search.results')}>
         {results.length === 0 ? (
-          <p className="px-3 py-6 text-center text-body text-ink-faint">No canvas matches “{query.trim()}”.</p>
+          <p className="px-3 py-6 text-center text-body text-ink-faint">{t('search.noMatches', { query: query.trim() })}</p>
         ) : (
           results.map((c, i) => (
             <Pressable
@@ -90,8 +92,11 @@ export function CanvasSearchModal({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body font-medium text-ink">{c.name}</span>
                 <span className="mt-px block text-caption text-ink-faint">
-                  {c.frameCount} frame{c.frameCount === 1 ? '' : 's'} · edited {timeAgo(c.updatedAt)}
-                  {c.shared ? ' · shared with you' : ''}
+                  {c.frameCount === 1
+                    ? t('home.framesCountSingle')
+                    : t('home.framesCountMulti', { count: c.frameCount })}{' '}
+                  · {t('home.editedAgo', { time: timeAgo(c.updatedAt) })}
+                  {c.shared ? t('search.sharedWithYou') : ''}
                 </span>
               </span>
             </Pressable>

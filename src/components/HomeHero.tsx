@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { DRAFT_OPTIONS, DRAFTS_STORAGE_KEY, isDraftCount, readStoredDrafts, type DraftCount } from '../lib/homePrompt'
+import { useI18n } from '../lib/i18n'
 import { DoopMark } from './Logo'
 import { ModelPicker } from './ModelPicker'
 import { BrandMark } from './ui/brand-mark'
@@ -59,40 +60,42 @@ interface Chip {
 
 const chipIcon = { width: 13, height: 13 } as const
 
-const CHIPS: Chip[] = [
-  {
-    id: 'landing',
-    label: 'Draft a landing page',
-    icon: <LayoutTemplateIcon {...chipIcon} />,
-    prompt: 'Draft a landing page for ',
-  },
-  {
-    id: 'recap',
-    label: 'Recap a session',
-    icon: <CalendarIcon {...chipIcon} />,
-    prompt: 'Recap what happened on my canvases this week, as one summary frame.',
-  },
-  {
-    id: 'changed',
-    label: 'What changed',
-    icon: <HistoryIcon {...chipIcon} />,
-    prompt: 'What changed across my canvases this week?',
-  },
-  {
-    id: 'automation',
-    label: 'Run an automation',
-    icon: <span className="font-mono text-caption">/</span>,
-    action: 'onAutomations',
-  },
-  { id: 'agents', label: 'Connect your agents', icon: <CirclePlusIcon {...chipIcon} />, action: 'onConnectAgents' },
-  { id: 'import', label: 'Import a design', icon: <UploadIcon {...chipIcon} />, action: 'onImport' },
-  {
-    id: 'comments',
-    label: 'Review comments',
-    icon: <MessageSquareIcon {...chipIcon} />,
-    prompt: 'Go through the open comments on my canvases and address each one.',
-  },
-]
+function getChips(t: (key: any) => string): Chip[] {
+  return [
+    {
+      id: 'landing',
+      label: t('home.chipLanding'),
+      icon: <LayoutTemplateIcon {...chipIcon} />,
+      prompt: t('home.promptLanding'),
+    },
+    {
+      id: 'recap',
+      label: t('home.chipRecap'),
+      icon: <CalendarIcon {...chipIcon} />,
+      prompt: t('home.promptRecap'),
+    },
+    {
+      id: 'changed',
+      label: t('home.chipChanged'),
+      icon: <HistoryIcon {...chipIcon} />,
+      prompt: t('home.promptChanged'),
+    },
+    {
+      id: 'automation',
+      label: t('home.chipAutomation'),
+      icon: <span className="font-mono text-caption">/</span>,
+      action: 'onAutomations',
+    },
+    { id: 'agents', label: t('home.chipAgents'), icon: <CirclePlusIcon {...chipIcon} />, action: 'onConnectAgents' },
+    { id: 'import', label: t('home.chipImport'), icon: <UploadIcon {...chipIcon} />, action: 'onImport' },
+    {
+      id: 'comments',
+      label: t('home.chipComments'),
+      icon: <MessageSquareIcon {...chipIcon} />,
+      prompt: t('home.promptComments'),
+    },
+  ]
+}
 
 /** the beam walks the strip while nobody hovers, like a slow carousel */
 const BEAM_STEP_MS = 4000
@@ -123,6 +126,8 @@ export function HomeHero({
   /** a timestamp — the rail's "Ask Doop" and ⌘/ ask for the keyboard */
   focusAt: number
 }) {
+  const { t, locale } = useI18n()
+  const chips = useMemo(() => getChips(t), [t])
   const [text, setText] = useState('')
   const [drafts, setDrafts] = useState<DraftCount>(() =>
     readStoredDrafts(typeof localStorage === 'undefined' ? undefined : localStorage),
@@ -141,9 +146,9 @@ export function HomeHero({
 
   useEffect(() => {
     if (hovered !== null) return
-    const timer = window.setInterval(() => setBeamAt((i) => (i + 1) % CHIPS.length), BEAM_STEP_MS)
+    const timer = window.setInterval(() => setBeamAt((i: number) => (i + 1) % chips.length), BEAM_STEP_MS)
     return () => window.clearInterval(timer)
-  }, [hovered])
+  }, [hovered, chips.length])
 
   function pickDrafts(n: DraftCount) {
     setDrafts(n)
@@ -195,7 +200,8 @@ export function HomeHero({
           <DoopMark animated size="fill" className="block" />
         </span>
         <h1 className="font-hero text-title font-light leading-none md:text-display">
-          Ask me what to design{firstName ? ', ' : ''}
+          {t('home.askMeWhatToDesign')}
+          {firstName ? (locale === 'zh-TW' ? '，' : ', ') : ''}
           {firstName && <span className="text-ink-faint">{firstName}</span>}
         </h1>
       </div>
@@ -211,7 +217,7 @@ export function HomeHero({
         />
         <div className="absolute inset-x-[54px] -top-[14px] flex h-[74px] items-start justify-center overflow-hidden pb-7 pt-[14px] [mask-image:linear-gradient(90deg,transparent,#000_14%,#000_86%,transparent)]">
           <div className="flex flex-none gap-3" onMouseLeave={() => setHovered(null)}>
-            {CHIPS.map((chip, i) => {
+            {chips.map((chip: Chip, i: number) => {
               const on = i === beamOn
               return (
                 <Chip
@@ -252,8 +258,8 @@ export function HomeHero({
             rows={1}
             value={text}
             disabled={busy}
-            placeholder="What changed across my canvases this week?"
-            aria-label="Ask Doop what to design"
+            placeholder={t('home.composerPlaceholder')}
+            aria-label={t('home.askDoopAria')}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={onKeyDown}
             className="min-h-[52px] text-lead placeholder:text-ink-ghost md:text-lead"
@@ -264,24 +270,24 @@ export function HomeHero({
               focus="ring"
               className="gap-[7px] rounded-row text-ink-soft transition-colors hover:text-ink"
               onClick={actions.onImport}
-              title="Attach a design to start from"
+              title={t('home.attachDesignTitle')}
             >
-              <AttachmentIcon width={14} height={14} /> Files
+              <AttachmentIcon width={14} height={14} /> {t('home.files')}
             </Pressable>
             <span className="flex-1" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <MenuButton
                   variant="quiet"
-                  aria-label={`Drafts per prompt: ${drafts}`}
+                  aria-label={t('home.draftsAria', { count: drafts })}
                   className="whitespace-nowrap"
                   icon={<CopyIcon width={14} height={14} />}
                 >
-                  {drafts} {drafts === 1 ? 'draft' : 'drafts'}
+                  {drafts === 1 ? t('home.draftsCountSingle') : t('home.draftsCountMulti', { count: drafts })}
                 </MenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="end" width="md">
-                <DropdownMenuCaption>Drafts per prompt</DropdownMenuCaption>
+                <DropdownMenuCaption>{t('home.draftsPerPrompt')}</DropdownMenuCaption>
                 <DropdownMenuRadioGroup
                   value={String(drafts)}
                   onValueChange={(next) => {
@@ -293,9 +299,9 @@ export function HomeHero({
                     <DropdownMenuRadioItem
                       key={n}
                       value={String(n)}
-                      description={n === 1 ? 'One take on the brief' : `${n} takes, side by side, to pick from`}
+                      description={n === 1 ? t('home.draftOneBlurb') : t('home.draftMultiBlurb', { count: n })}
                     >
-                      {n} {n === 1 ? 'draft' : 'drafts'}
+                      {n === 1 ? t('home.draftsCountSingle') : t('home.draftsCountMulti', { count: n })}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -306,7 +312,7 @@ export function HomeHero({
               variant="primary"
               size="lg"
               shape="round"
-              aria-label="Send"
+              aria-label={t('home.send')}
               disabled={busy || !text.trim()}
               onClick={submit}
             >
@@ -319,7 +325,7 @@ export function HomeHero({
           onClick={actions.onIntegrations}
           className="group mx-[14px] flex w-[calc(100%-28px)] items-center rounded-b-card bg-sub px-5 pb-2.5 pt-3 text-body text-ink-soft transition-colors hover:text-ink"
         >
-          Connect your existing designs for better results
+          {t('home.connectDesigns')}
           <ChevronRightIcon
             width={12}
             height={12}

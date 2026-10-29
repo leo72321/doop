@@ -1,6 +1,7 @@
 import { readingOrder } from '../../shared/frameOrder'
 import type { Frame } from '../../shared/types'
 import { downloadFrameExport, downloadFramesPdf, type FrameExportFormat } from '../lib/frameExport'
+import { useI18n } from '../lib/i18n'
 import { Button } from './ui/button'
 import { Modal, ModalActions, ModalLede, ModalTitle } from './ui/modal'
 
@@ -15,6 +16,8 @@ export function FrameExportModal({
   groupFrames?: Frame[]
   onClose: () => void
 }) {
+  const { t } = useI18n()
+
   function download(format: FrameExportFormat) {
     void downloadFrameExport(frame, format)
     onClose()
@@ -27,31 +30,33 @@ export function FrameExportModal({
 
   return (
     <Modal size="sm" onClose={onClose}>
-      <ModalTitle className="break-words">Export “{frame.name}”</ModalTitle>
-      <ModalLede>Download this frame as a PNG or JPG image, or as a vector PDF.</ModalLede>
+      <ModalTitle className="break-words">{t('frameExport.title', { name: frame.name })}</ModalTitle>
+      <ModalLede>{t('frameExport.lede')}</ModalLede>
       <div className="mt-5 grid gap-2">
         <Button variant="ghost" className="justify-start" onClick={() => download('png')}>
-          Download PNG
+          {t('frameExport.downloadPng')}
         </Button>
         <Button variant="ghost" className="justify-start" onClick={() => download('jpg')}>
-          Download JPG
+          {t('frameExport.downloadJpg')}
         </Button>
         <Button
           variant="ghost"
           className="h-auto flex-col items-start gap-1 whitespace-normal text-left"
           onClick={downloadPdf}
         >
-          <span>{groupFrames.length > 1 ? `Download PDF of ${groupFrames.length} frames` : 'Download PDF'}</span>
-          <span className="text-xs font-normal text-ink-soft">
+          <span>
             {groupFrames.length > 1
-              ? 'One vector page per frame, top to bottom then left to right'
-              : 'Vector page the size of the frame, text stays selectable'}
+              ? t('frameExport.downloadPdfCount', { count: groupFrames.length })
+              : t('frameExport.downloadPdfSingle')}
+          </span>
+          <span className="text-xs font-normal text-ink-soft">
+            {groupFrames.length > 1 ? t('frameExport.pdfMultiDesc') : t('frameExport.pdfSingleDesc')}
           </span>
         </Button>
       </div>
       <ModalActions>
         <Button variant="ghost" onClick={onClose}>
-          Cancel
+          {t('common.cancel')}
         </Button>
       </ModalActions>
     </Modal>

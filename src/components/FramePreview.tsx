@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { t } from '../lib/i18n'
 
 /**
  * A frame's rendered preview (`/i/<id>.jpg?preview`) filling whatever box it
@@ -11,7 +12,7 @@ import { cn } from '@/lib/utils'
  */
 export function FramePreview({
   frameId,
-  empty = 'empty canvas',
+  empty,
   className,
 }: {
   frameId?: string | null
@@ -21,12 +22,13 @@ export function FramePreview({
   className?: string
 }) {
   const [failedId, setFailedId] = useState<string | null>(null)
+  const resolvedEmpty = empty !== undefined ? empty : t('frame.emptyCanvas')
   const fallback = (text: ReactNode) =>
     text === null ? null : (
       <span className={cn('grid h-full w-full place-items-center text-label text-ink-faint', className)}>{text}</span>
     )
-  if (!frameId) return fallback(empty)
-  if (failedId === frameId) return fallback('preview unavailable')
+  if (!frameId) return fallback(resolvedEmpty)
+  if (failedId === frameId) return fallback(t('frame.previewUnavailable'))
   return (
     <img
       src={`/i/${frameId}.jpg?preview`}
@@ -48,11 +50,10 @@ const THUMB_SIZE = {
 
 type FrameThumbSize = keyof typeof THUMB_SIZE
 
-/** What each size says when there is nothing to preview; xs is too small for words. */
-const THUMB_EMPTY: Record<FrameThumbSize, ReactNode> = {
-  xs: null,
-  sm: 'empty',
-  md: 'empty canvas',
+function defaultThumbEmpty(size: FrameThumbSize): ReactNode {
+  if (size === 'xs') return null
+  if (size === 'sm') return t('frame.empty')
+  return t('frame.emptyCanvas')
 }
 
 /**
@@ -62,7 +63,7 @@ const THUMB_EMPTY: Record<FrameThumbSize, ReactNode> = {
 export function FrameThumb({
   frameId,
   size = 'sm',
-  empty = THUMB_EMPTY[size],
+  empty,
   className,
 }: {
   frameId?: string | null
@@ -72,6 +73,7 @@ export function FrameThumb({
   /** placement only (margins, flex); the box comes from `size` */
   className?: string
 }) {
+  const resolvedEmpty = empty !== undefined ? empty : defaultThumbEmpty(size)
   return (
     <span
       className={cn(
@@ -81,7 +83,7 @@ export function FrameThumb({
       )}
       aria-hidden
     >
-      <FramePreview frameId={frameId} empty={empty} className="text-micro" />
+      <FramePreview frameId={frameId} empty={resolvedEmpty} className="text-micro" />
     </span>
   )
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ModelAccountKind } from '../lib/api'
 import { api } from '../lib/api'
 import { posthog } from '../lib/posthog'
+import { useI18n } from '../lib/i18n'
 import { navigate } from '../App'
 import { cn } from '@/lib/utils'
 import { AgentIcon } from './AgentIcon'
@@ -36,6 +37,7 @@ const PROVIDER_MARK: Partial<Record<ModelAccountKind, string>> = {
  * nothing to choose between, so it says so and links to Settings.
  */
 export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
+  const { t } = useI18n()
   const { account, set, refresh } = useModelAccount()
   const [busy, setBusy] = useState(false)
   const [open, setOpen] = useState(false)
@@ -43,7 +45,7 @@ export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
   const kind = account?.connected ? account.kind : undefined
   const menu = (catalog?.live ? catalog.models : undefined) ?? (kind && account?.menus?.[kind]) ?? []
   const current = menu.find((m) => m.id === account?.model)
-  const label = current?.name ?? (account?.connected ? (account.model ?? 'Model') : 'Doop Agent')
+  const label = current?.name ?? (account?.connected ? (account.model ?? t('model.model')) : t('model.doopAgent'))
   const mark = kind ? PROVIDER_MARK[kind] : undefined
 
   async function pick(model: string) {
@@ -80,7 +82,7 @@ export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
         <MenuButton
           variant="quiet"
           disabled={disabled || busy || !account}
-          aria-label={`Model: ${label}`}
+          aria-label={t('model.pickerAria', { label })}
           className={cn('min-w-0 gap-[5px]', busy && 'animate-[stream-pulse_1.2s_ease-in-out_infinite]')}
           icon={
             <span className="grid size-3 flex-none place-items-center">
@@ -99,7 +101,7 @@ export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
       <DropdownMenuContent side="top" align="end" width="lg">
         {menu.length > 0 ? (
           <>
-            <DropdownMenuCaption>Doop Agent model</DropdownMenuCaption>
+            <DropdownMenuCaption>{t('model.agentModel')}</DropdownMenuCaption>
             <DropdownMenuRadioGroup value={account?.model ?? ''} onValueChange={(model) => void pick(model)}>
               {menu.map((m) => (
                 <DropdownMenuRadioItem key={m.id} value={m.id} description={m.blurb}>
@@ -114,7 +116,7 @@ export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
             {account?.effort && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuCaption>Reasoning effort</DropdownMenuCaption>
+                <DropdownMenuCaption>{t('model.reasoningEffort')}</DropdownMenuCaption>
                 <DropdownMenuRadioGroup value={account.effort} onValueChange={(effort) => void pickEffort(effort)}>
                   {reasoningEffortOptions(account.effort).map((e) => (
                     <DropdownMenuRadioItem key={e.id} value={e.id} description={e.blurb}>
@@ -128,11 +130,11 @@ export function ModelPicker({ disabled = false }: { disabled?: boolean }) {
           </>
         ) : (
           <DropdownMenuCaption className="pb-2 text-ink-soft">
-            No model account connected — the Doop Agent runs on the server’s model when one is set up.
+            {t('model.noAccountConnected')}
           </DropdownMenuCaption>
         )}
         <DropdownMenuItem onSelect={() => navigate('/settings?pane=agent')}>
-          {account?.connected ? 'Model settings…' : 'Connect a model…'}
+          {account?.connected ? t('model.modelSettings') : t('model.connectModel')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

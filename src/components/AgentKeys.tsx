@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, errorMessage, type AgentKeyInfo } from '../lib/api'
+import { useI18n } from '../lib/i18n'
 import { posthog } from '../lib/posthog'
 import { timeAgo } from '../lib/time'
 import { ConfirmDialog } from './ui/alert-dialog'
@@ -31,6 +32,7 @@ function headlessConfig(secret: string): string {
  *  secret appears exactly once, in the mint response — after that the list
  *  knows only each key's first characters. */
 export function AgentKeys() {
+  const { t } = useI18n()
   const [keys, setKeys] = useState<AgentKeyInfo[] | null>(null)
   const [name, setName] = useState('')
   const [minting, setMinting] = useState(false)
@@ -83,19 +85,17 @@ export function AgentKeys() {
   return (
     <SettingsCard>
       <CardHeader>
-        <CardTitle>Agent keys</CardTitle>
+        <CardTitle>{t('keys.title')}</CardTitle>
         <CardDescription>
-          Bearer credentials for the MCP endpoint, for agents that cannot open a browser to sign in — a Mastra workflow,
-          n8n, CI. A key acts as you: everything it designs is attributed to you, and it reaches exactly the canvases
-          you can. Revoking cuts it off immediately.
+          {t('keys.desc')}
         </CardDescription>
       </CardHeader>
 
       <CardRow
-        label="New key"
+        label={t('keys.newKey')}
         action={
           <Button size="sm" disabled={minting || keys === null} onClick={mint}>
-            {minting ? 'Creating…' : 'Create key'}
+            {minting ? t('keys.creating') : t('keys.createKey')}
           </Button>
         }
         control={
@@ -105,9 +105,9 @@ export function AgentKeys() {
               setName(e.target.value)
               setError('')
             }}
-            placeholder="What will use it, e.g. mastra-prod"
+            placeholder={t('keys.namePlaceholder')}
             maxLength={60}
-            aria-label="Agent key name"
+            aria-label={t('keys.nameAria')}
           />
         }
       >
@@ -115,11 +115,11 @@ export function AgentKeys() {
       </CardRow>
 
       {minted && (
-        <CardRow label="Your new key">
+        <CardRow label={t('keys.newKeyLabel')}>
           <div className="min-w-0 flex-1">
-            <Note tone="success">Copy it now — it is shown once and stored hashed.</Note>
+            <Note tone="success">{t('keys.copyNowNotice')}</Note>
             <CodeBlock className="mt-2" text={minted.secret} />
-            <p className="mb-1.5 mt-3 text-caption font-medium text-ink-faint">MCP config for a headless client</p>
+            <p className="mb-1.5 mt-3 text-caption font-medium text-ink-faint">{t('keys.mcpConfigLabel')}</p>
             <CodeBlock text={headlessConfig(minted.secret)} />
           </div>
         </CardRow>
@@ -130,29 +130,29 @@ export function AgentKeys() {
           key={key.id}
           label={key.name}
           action={
-            <Button size="sm" variant="ghost" aria-label={`Revoke ${key.name}`} onClick={() => setConfirmRevoke(key)}>
-              <TrashIcon /> Revoke
+            <Button size="sm" variant="ghost" aria-label={t('keys.revokeAria', { name: key.name })} onClick={() => setConfirmRevoke(key)}>
+              <TrashIcon /> {t('keys.revoke')}
             </Button>
           }
         >
           <span className="font-mono text-body text-ink-soft">{key.start}…</span>
           <Note>
-            created {timeAgo(key.createdAt)}
-            {key.lastUsedAt ? ` · last used ${timeAgo(key.lastUsedAt)}` : ' · never used'}
+            {t('keys.createdAgo', { time: timeAgo(key.createdAt) })}
+            {key.lastUsedAt ? t('keys.lastUsedAgo', { time: timeAgo(key.lastUsedAt) }) : t('keys.neverUsed')}
           </Note>
         </CardRow>
       ))}
       {keys && keys.length === 0 && !minted && (
-        <CardRow label="No keys yet">
-          <Note>Interactive clients (Claude Code, Codex) don’t need one — they sign in with OAuth.</Note>
+        <CardRow label={t('keys.noKeysYet')}>
+          <Note>{t('keys.noKeysDesc')}</Note>
         </CardRow>
       )}
       <ConfirmDialog
         open={!!confirmRevoke}
         onOpenChange={(open) => !open && setConfirmRevoke(null)}
-        title={`Revoke “${confirmRevoke?.name ?? ''}”?`}
-        description="Agents using it lose access immediately."
-        confirmLabel="Revoke key"
+        title={t('keys.confirmRevokeTitle', { name: confirmRevoke?.name ?? '' })}
+        description={t('keys.confirmRevokeDesc')}
+        confirmLabel={t('keys.confirmRevokeAction')}
         destructive
         onConfirm={() => {
           const target = confirmRevoke
