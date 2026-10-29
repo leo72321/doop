@@ -92,7 +92,7 @@ export function Onboarding({ canvasId }: { canvasId: string }) {
   /* the same one-line prompt the Connect AI modal hands out: the MCP server
      ships its own instructions on connect, so the prompt only needs to name
      the canvas */
-  const prompt = `Work on Doop canvas ${canvasId}. Start with get_guide({ topic: "doop-instructions" }) and follow it.`
+  const prompt = `請在 Doop 畫布 ${canvasId} 上進行設計。首先呼叫 get_guide({ topic: "doop-instructions" }) 並遵循其指引。`
 
   const checklist = (
     <>

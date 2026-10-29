@@ -8,8 +8,8 @@ export function importSources(): ImportSource[] {
   return [
     {
       id: 'website',
-      title: 'Website',
-      blurb: 'One page, or discover a whole site.',
+      title: '網站',
+      blurb: '匯入單一網頁，或探索整座網站。',
       icon: <WebIcon className="size-5 text-ink" />,
     },
     ...clientIntegrations
@@ -17,14 +17,14 @@ export function importSources(): ImportSource[] {
       .map((i) => ({ id: i.id, ...i.importSource! })),
     {
       id: 'liveapp',
-      title: 'Live app',
-      blurb: 'Behind a login, a VPN or localhost.',
+      title: '運行中應用程式',
+      blurb: '支援登入驗證、VPN 或本機 Localhost 環境。',
       icon: <RadioTowerIcon className="size-5 text-ink" />,
     },
     {
       id: 'github',
-      title: 'GitHub repo',
-      blurb: 'Screens read from the repo’s routes.',
+      title: 'GitHub 倉庫',
+      blurb: '直接從代碼倉庫的路由讀取介面畫面。',
       icon: <GithubIcon width={21} height={21} />,
     },
   ]

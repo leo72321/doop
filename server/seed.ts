@@ -4,12 +4,12 @@ import { store } from './store.ts'
 export function seed() {
   if (store.canvases.size > 0) return
 
-  const canvas = store.createCanvas('Welcome Canvas')
+  const canvas = store.createCanvas('歡迎畫布')
 
   store.createFrame(
     canvas.id,
     {
-      name: 'Hero — Terrarium',
+      name: 'Hero 主視覺 — 生態植栽缸',
       x: 120,
       y: 120,
       width: 720,
@@ -28,10 +28,10 @@ export function seed() {
   .orb{position:absolute;right:-80px;top:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2E4A38,#13291E);filter:blur(2px)}
 </style></head><body>
   <div class="orb"></div>
-  <div class="eyebrow">Terrarium · Field Notes</div>
-  <h1>Grow a garden that <em>thinks</em> for itself.</h1>
-  <p>Terrarium pairs slow horticulture with fast sensors. Moisture, light and root health, observed hourly and explained in plain language.</p>
-  <div class="cta"><button class="btn">Start growing</button><a class="link" href="#">Read the field notes</a></div>
+  <div class="eyebrow">生態植栽缸 · 田野筆記</div>
+  <h1>培育一座會自主<em>思考</em>的植物花園。</h1>
+  <p>生態植栽缸將慢節奏的園藝與敏捷感測器完美結合。每小時監測水分、光照與根系健康，並以平易近人的語言即時解讀。</p>
+  <div class="cta"><button class="btn">開始培育</button><a class="link" href="#">閱讀田野筆記</a></div>
 </body></html>`,
     },
     'seed',
@@ -40,7 +40,7 @@ export function seed() {
   store.createFrame(
     canvas.id,
     {
-      name: 'Pricing card',
+      name: '定價方案卡片',
       x: 920,
       y: 120,
       width: 420,
@@ -59,15 +59,15 @@ export function seed() {
   button{width:100%;padding:14px;border:none;border-radius:12px;background:#0F1E17;color:#F2EFE6;font-size:14px;cursor:pointer}
 </style></head><body>
   <div class="card">
-    <span class="tag">Greenhouse</span>
-    <div class="price">$24<span> / month</span></div>
+    <span class="tag">溫室方案</span>
+    <div class="price">$24<span> / 月</span></div>
     <ul>
-      <li>Unlimited plant profiles</li>
-      <li>Hourly sensor readings</li>
-      <li>Weekly care digests</li>
-      <li>Frost &amp; drought alerts</li>
+      <li>無上限植物檔案</li>
+      <li>每小時感測器數據紀錄</li>
+      <li>每週養護摘要報告</li>
+      <li>霜害與乾旱即時預警</li>
     </ul>
-    <button>Choose Greenhouse</button>
+    <button>選擇溫室方案</button>
   </div>
 </body></html>`,
     },

@@ -67,19 +67,17 @@ export function MemoryPanel() {
       {empty && (
         <div className="border-b border-line-soft px-4 py-3.5">
           <p className="text-[12.5px] leading-[1.5] font-semibold text-ink">
-            Memory is how this canvas remembers your taste — and how every agent designs with it.
+            記憶庫是此畫布記住您的設計品味的方式 — 也是每個 Agent 依據此風格進行設計的依據。
           </p>
           <ul className="mt-2.5 flex flex-col gap-2 pl-4">
             <li className="text-[12px] leading-[1.5] text-ink-soft">
-              <b>References</b> — pin a frame you love (Pin as reference in its inspector). Agents copy its colors, type
-              and layout when they design something new.
+              <b>參考範例</b> — 將您喜愛的畫框釘選（在屬性檢視器中點擊「釘選為參考」）。Agent 在設計新內容時會參考其色彩、字型與排版。
             </li>
             <li className="text-[12px] leading-[1.5] text-ink-soft">
-              <b>Rules</b> — style guides agents read before designing. Write them, or let them grow.
+              <b>設計規範</b> — 每個 Agent 在此進行設計前必讀的風格指南。您可以親自撰寫，或讓它隨協作自然累積。
             </li>
             <li className="text-[12px] leading-[1.5] text-ink-soft">
-              <b>Decisions</b> — feedback you give agents is captured here automatically once it’s addressed. When a
-              preference keeps recurring, Doop suggests adding it to your rules.
+              <b>設計決策</b> — 您向 Agent 提出的回饋在被採納後會自動記錄於此。當某項偏好反覆出現時，Doop 會建議將其加入設計規範。
             </li>
           </ul>
         </div>
@@ -88,11 +86,11 @@ export function MemoryPanel() {
       {pending.map((p) => (
         <div key={p.id} className="mx-4 mt-3 rounded-[12px] border border-brand bg-surface px-3.5 py-3 shadow-card">
           <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-accent-ink">
-            <DoopMark size={11} /> Memory suggestion
+            <DoopMark size={11} /> 記憶庫建議
           </div>
           <div className="mt-1.5 text-[13px] font-semibold leading-[1.45] text-ink">{p.rule.replace(/^-\s*/, '')}</div>
           <div className="mt-1.5 text-[11.5px] leading-[1.45] text-ink-faint">
-            {p.rationale} · from {p.basedOn.length} decision{p.basedOn.length === 1 ? '' : 's'} → “
+            {p.rationale} · 來自 {p.basedOn.length} 則決策 → “
             {p.guideTitle ?? guideTitle({ name: p.guideName })}”
           </div>
           <div className="mt-2.5 flex justify-end gap-2">
@@ -102,7 +100,7 @@ export function MemoryPanel() {
               className="text-[11.5px]"
               onClick={() => api.resolveProposal(canvasId, p.id, false).catch(console.error)}
             >
-              Dismiss
+              忽略
             </Button>
             <Button
               variant="primary"
@@ -110,19 +108,18 @@ export function MemoryPanel() {
               className="text-[11.5px]"
               onClick={() => api.resolveProposal(canvasId, p.id, true).catch(console.error)}
             >
-              Add to rules
+              加入規範
             </Button>
           </div>
         </div>
       ))}
 
       <ListSection>
-        <span>References</span>
+        <span>參考範例</span>
       </ListSection>
       {references.length === 0 ? (
         <ListHint>
-          No references yet. Pin a frame you like (Pin as reference in its inspector) and agents will copy its colors,
-          type and layout in new designs.
+          尚無參考範例。將您喜歡的畫框釘選（在屬性檢視器中點擊「釘選為參考」），Agent 會在新設計中沿用其色彩、字型與排版。
         </ListHint>
       ) : (
         references.map((r) => (
@@ -137,7 +134,7 @@ export function MemoryPanel() {
       )}
 
       <ListSection>
-        <span>Rules</span>
+        <span>設計規範</span>
         {!readOnly && (
           <Button
             variant="solid"
@@ -145,11 +142,11 @@ export function MemoryPanel() {
             className="flex-none text-[11.5px] font-bold"
             onClick={() => setOpenGuide('')}
           >
-            + New
+            + 新增
           </Button>
         )}
       </ListSection>
-      {docs.length === 0 && <ListHint>Style guides every agent reads before designing here.</ListHint>}
+      {docs.length === 0 && <ListHint>每個 Agent 在此畫布設計前都會閱讀的風格指南。</ListHint>}
       {docs.map((d) => (
         <ListRow key={d.name} onClick={() => setOpenGuide(d.name)}>
           <ListTitle>{guideTitle(d)}</ListTitle>
@@ -163,7 +160,7 @@ export function MemoryPanel() {
       {decisions.length > 0 && (
         <>
           <ListSection>
-            <span>Decisions</span>
+            <span>設計決策</span>
           </ListSection>
           {decisions.slice(0, 20).map((d) => (
             <ListItem key={d.id} title={d.summary ? `${d.from}: “${d.text}”` : undefined}>
@@ -171,7 +168,7 @@ export function MemoryPanel() {
               <ListMeta>
                 {d.from}
                 {d.agentName ? ` → ${d.agentName}` : ''} · {timeAgo(d.at)}
-                {d.distilledAt ? ' · distilled' : ''}
+                {d.distilledAt ? ' · 已提煉' : ''}
               </ListMeta>
             </ListItem>
           ))}
@@ -227,11 +224,11 @@ function RefModal({
   if (!reference) {
     return (
       <Modal size="xl" onClose={onClose}>
-        <ModalTitle className="sr-only">Reference</ModalTitle>
-        <ModalLede>This reference is no longer pinned.</ModalLede>
+        <ModalTitle className="sr-only">參考範例</ModalTitle>
+        <ModalLede>此參考已取消釘選。</ModalLede>
         <ModalActions>
           <Button variant="ghost" onClick={onClose}>
-            Close
+            關閉
           </Button>
         </ModalActions>
       </Modal>
@@ -249,8 +246,7 @@ function RefModal({
           </Badge>
         </div>
         <div className={meta}>
-          pinned by {reference.pinnedBy} · {new Date(reference.pinnedAt).toLocaleString()} — agents copy this design’s
-          colors, type and layout in new work
+          由 {reference.pinnedBy} 釘選 · {new Date(reference.pinnedAt).toLocaleString()} — Agent 在新設計中會沿用此設計的色彩、字型與排版
         </div>
         <div
           className="mt-3.5 overflow-auto rounded-[12px] border border-line bg-surface"
@@ -274,12 +270,12 @@ function RefModal({
                 onClose()
               }}
             >
-              Unpin
+              取消釘選
             </Button>
           )}
           <ModalSpacer />
           <Button variant="ghost" onClick={onClose}>
-            Close
+            關閉
           </Button>
         </ModalActions>
       </>
@@ -324,13 +320,13 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
       <>
         {editing ? (
           <>
-            <ModalTitle className="sr-only">{creating ? 'New rule' : 'Edit rule'}</ModalTitle>
+            <ModalTitle className="sr-only">{creating ? '新增規範' : '編輯規範'}</ModalTitle>
             <Input
               variant="well"
               inputSize="lg"
               className="font-display font-extrabold md:text-[19px]"
               autoFocus={creating}
-              placeholder="Name, e.g. “Featured Images”"
+              placeholder="名稱，例如「精選圖片」"
               value={titleDraft}
               maxLength={MAX_TITLE_CHARS}
               disabled={busy}
@@ -340,7 +336,7 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
             <Textarea
               className="mt-3 min-h-[38dvh] resize-y rounded-[12px] bg-surface px-4 py-3.5 font-mono leading-[1.65] focus:ring-0 sm:min-h-[46vh] md:text-[12.5px]"
               autoFocus={!creating}
-              placeholder={'# Rules\n\nPalette, fonts, layout recipes, asset URLs…'}
+              placeholder={'# 設計規範\n\n調色盤、字體、版面配置公式、素材 URL 等……'}
               value={draft}
               maxLength={MAX_GUIDELINE_CHARS}
               disabled={busy}
@@ -353,7 +349,7 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
               </span>
               <ModalSpacer />
               <Button variant="ghost" disabled={busy} onClick={() => (creating ? onClose() : setMode('read'))}>
-                Cancel
+                取消
               </Button>
               <Button
                 variant="primary"
@@ -364,18 +360,18 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
                     : save(doc!.name, draft, titleDraft.trim() || undefined)
                 }
               >
-                {busy ? 'Saving…' : 'Save'}
+                {busy ? '儲存中……' : '儲存'}
               </Button>
             </ModalActions>
           </>
         ) : !doc ? (
           /* deleted while open (possibly by someone else) */
           <>
-            <ModalTitle className="sr-only">Rule</ModalTitle>
-            <ModalLede>This design guide no longer exists.</ModalLede>
+            <ModalTitle className="sr-only">設計規範</ModalTitle>
+            <ModalLede>此設計指南已不存在。</ModalLede>
             <ModalActions>
               <Button variant="ghost" onClick={onClose}>
-                Close
+                關閉
               </Button>
             </ModalActions>
           </>
@@ -403,24 +399,24 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
             <ModalActions>
               {!readOnly && (
                 <Button variant="ghost" disabled={busy} onClick={() => setConfirmDelete(true)}>
-                  Delete
+                  刪除
                 </Button>
               )}
               <ConfirmDialog
                 open={confirmDelete}
                 onOpenChange={setConfirmDelete}
-                title={`Delete “${guideTitle(doc)}”?`}
-                description="Agents stop designing with this rule from their next task. Its version history is kept, so you can restore it later."
-                confirmLabel="Delete guide"
+                title={`確定要刪除「${guideTitle(doc)}」？`}
+                description="Agent 將從下一項任務起停止採用此規則。其版本歷史仍會保留，日後隨時可以還原。"
+                confirmLabel="刪除指南"
                 destructive
                 onConfirm={() => save(doc.name, '')}
               />
               <ModalSpacer />
               <Button variant="ghost" disabled={busy} onClick={onClose}>
-                Close
+                關閉
               </Button>
               <Button variant="ghost" disabled={busy} onClick={() => setMode('history')}>
-                History
+                歷史紀錄
               </Button>
               {!readOnly && (
                 <Button
@@ -433,7 +429,7 @@ function GuideModal({ canvasId, name, onClose }: { canvasId: string; name: strin
                     setMode('edit')
                   }}
                 >
-                  Edit
+                  編輯
                 </Button>
               )}
             </ModalActions>
@@ -478,22 +474,22 @@ function GuideHistory({
   return (
     <>
       <div className={modalHead}>
-        <ModalTitle>{guideTitle(doc)} — history</ModalTitle>
+        <ModalTitle>{guideTitle(doc)} — 歷史紀錄</ModalTitle>
       </div>
       {error && <p className={errorText}>{error}</p>}
       {preview ? (
         <>
           <div className={meta}>
-            {preview.markdown ? 'saved' : 'deleted'} by {preview.savedBy} · {new Date(preview.savedAt).toLocaleString()}
+            {preview.markdown ? '已儲存' : '已刪除'}，由 {preview.savedBy} · {new Date(preview.savedAt).toLocaleString()}
           </div>
           {preview.markdown ? (
             <MarkdownBlock>{preview.markdown}</MarkdownBlock>
           ) : (
-            <ModalLede>This version marks a deletion — there is nothing to show.</ModalLede>
+            <ModalLede>此版本為刪除紀錄 — 無可顯示內容。</ModalLede>
           )}
           <ModalActions>
             <Button variant="ghost" disabled={busy} onClick={() => setPreviewIdx(null)}>
-              Back
+              返回
             </Button>
             <ModalSpacer />
             {!readOnly && (
@@ -502,7 +498,7 @@ function GuideHistory({
                 disabled={busy || !preview.markdown || preview.markdown === doc.markdown}
                 onClick={() => onRestore(preview.markdown)}
               >
-                {busy ? 'Restoring…' : 'Restore this version'}
+                {busy ? '還原中……' : '還原此版本'}
               </Button>
             )}
           </ModalActions>
@@ -510,7 +506,7 @@ function GuideHistory({
       ) : (
         <>
           <div className="mt-3.5 overflow-hidden rounded-[12px] border border-line bg-surface">
-            {versions?.length === 0 && <ModalLede>No versions recorded yet.</ModalLede>}
+            {versions?.length === 0 && <ModalLede>尚無任何版本紀錄。</ModalLede>}
             {(versions ?? []).map((v, i) => (
               <ListRow
                 key={v.savedAt + v.savedBy}
@@ -519,9 +515,9 @@ function GuideHistory({
               >
                 <ListTitle>
                   {v.markdown === ''
-                    ? 'deleted'
+                    ? '已刪除'
                     : v.markdown === doc.markdown
-                      ? 'current'
+                      ? '目前版本'
                       : `v${(versions?.length ?? 0) - i}`}
                 </ListTitle>
                 <ListSummary>{v.markdown ? summarize(v.markdown) : '—'}</ListSummary>
@@ -533,7 +529,7 @@ function GuideHistory({
           </div>
           <ModalActions>
             <Button variant="ghost" disabled={busy} onClick={onBack}>
-              Back
+              返回
             </Button>
           </ModalActions>
         </>

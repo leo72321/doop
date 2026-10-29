@@ -603,15 +603,15 @@ export const zhTW: Record<keyof typeof en, string> = {
 
   // Onboarding
   'onboarding.gettingStarted': '新手指南',
-  'onboarding.sheetDesc': '只需兩個步驟，將你自己的代理加入畫布。',
-  'onboarding.step1Label': '連線你自己的代理',
-  'onboarding.step1Hint': 'Claude Code、Codex、Cursor 或任何 MCP 客戶端均可以你的身分在畫布上設計。',
+  'onboarding.sheetDesc': '只需兩個步驟，將您自己的 Agent 加入畫布。',
+  'onboarding.step1Label': '連線您專屬的 Agent',
+  'onboarding.step1Hint': 'Claude Code、Codex、Cursor 或任何 MCP 客戶端均可以您的身分在畫布上設計。',
   'onboarding.connectAi': '連線 AI',
   'onboarding.step2Label': '指派一項任務',
   'onboarding.copyStarterPrompt': '複製範例提示詞',
-  'onboarding.step2Hint': '貼上至代理的對話視窗中，親眼見證畫框即時串流產出。',
+  'onboarding.step2Hint': '貼上至 Agent 的對話視窗中，親眼見證畫框即時串流產出。',
   'onboarding.allDoneNotice':
-    '這就是核心協作流程！另外一個技巧：懸停在面板上的任務並回覆——你的筆記將成為任何代理都能接手處理的開放需求。',
+    '這就是核心協作流程！另外一個技巧：滑鼠懸停在面板上的任務並回覆 — 您的筆記將成為任何 Agent 都能接手處理的開放需求。',
   'onboarding.gotIt': '瞭解',
   'onboarding.dismissChecklist': '關閉檢查清單',
   'onboarding.dismiss': '關閉',
